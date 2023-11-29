@@ -1,0 +1,53 @@
+-- INSERTING A RECORD USING %ROWTYPE 
+------------------------------------------------------------------------	
+
+DROP TABLE EMP;
+CREATE TABLE EMP AS SELECT * FROM SCOTT.EMP;
+CREATE TABLE RET_EMP AS SELECT * FROM EMP;
+
+SELECT * FROM EMP;
+SELECT * FROM RET_EMP;
+
+DELETE FROM RET_EMP;
+
+DECLARE
+    v_empno EMP.EMPNO%TYPE := 7782;
+	v_emprec  EMP%ROWTYPE;
+BEGIN
+    SELECT * INTO v_emprec
+    FROM EMP
+    WHERE EMPNO = v_empno;
+	INSERT INTO RET_EMP VALUES v_emprec;
+END;
+
+SELECT * FROM RET_EMP;
+
+-------------------------------------------------------------------------------------------------------------------------------------------
+
+-- UPDATING A RECORD USING %ROWTYPE 
+
+DECLARE
+    v_empno EMP.EMPNO%TYPE := 7698;
+	v_emprec  EMP%ROWTYPE;
+BEGIN
+SELECT * INTO v_emprec
+    FROM EMP
+    WHERE EMPNO = v_empno;
+UPDATE RET_EMP SET ENAME = 'KESAV' WHERE EMPNO = v_emprec.empno;
+END;
+--------------------------------------------------------------------------------------------------------
+
+
+-- DELETING A RECORD USING %ROWTYPE 
+
+DECLARE
+    v_empno EMP.EMPNO%TYPE := 7698;
+	v_emprec  EMP%ROWTYPE;
+BEGIN
+SELECT * INTO v_emprec
+    FROM EMP
+    WHERE EMPNO = v_empno;
+DELETE FROM RET_EMP WHERE EMPNO = v_emprec.EMPNO;
+END;
+
+--------------------------------------------------------------------------------------------------------------------------

@@ -1,0 +1,150 @@
+-- 1.PL/SQL PROGRAM FOR FINDING FAHRENHEIT TO CELCIUS
+
+DECLARE/*variable decalrion*/
+    v_far NUMBER(6,3):=0.0;
+	v_cel NUMBER(6,3) :=0.0;
+BEGIN<<cel>> /*program starts here*/
+    v_far := 80;
+	v_cel := ((v_far-32)*5)/9;
+	DBMS_OUTPUT.PUT_LINE('CELICIUS IS:'||' '||v_cel);
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        DBMS_OUTPUT.PUT_LINE('No details for celicus');
+	WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('An Error occured'||SQLERRM);
+END cel; /* program ends*/
+
+-- 2.PL/SQL PROGRAM FOR FINDING  CELCIUS TO FAHRENHEIT
+DECLARE/*variable decalrion*/
+ v_cel NUMBER(6,3) :=0.0;
+ v_far NUMBER(6,3):=0.0;
+BEGIN<<cel>> /*program starts here*/
+    v_cel := 26.667;
+	v_far := v_cel*9/5+32;
+	DBMS_OUTPUT.PUT_LINE('FAHRENHEIT IS:'||' '||v_far);
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+    DBMS_OUTPUT.PUT_LINE('NO DETAILS FOR FAHRENHEIT');
+	WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('AN ERROR OCCURED'||SQLERRM);
+END cel; /* program ends*/
+
+--------------------------------------------------------------------------------------------------------------------------------------------------
+
+-- EXAMPLE FOR CASE STMT IN PLSQL
+-------------------------------------------------------------
+CREATE TABLE EMP AS SELECT * FROM SCOTT.EMP;
+DECLARE
+    v_name NVARCHAR2(50);
+    v_sal EMP.SAL%TYPE;
+	v_category VARCHAR2(20);
+BEGIN
+    SELECT ENAME,SAL
+    INTO v_name,v_sal
+    FROM EMP
+    WHERE EMPNO = 7839;
+CASE 
+WHEN  v_sal>1000 AND v_sal<3000 THEN 
+   	  v_category :='AVERAGE SALARY';
+WHEN  v_sal>=3000 AND v_sal<5000  THEN
+      v_category := 'MEDIUM SALARY';
+WHEN  v_sal>=5000 THEN
+      v_category := 'HIGH SALARY';
+ELSE
+      v_category := 'BELOW AVEAGE SALARY';
+END CASE;
+    DBMS_OUTPUT.PUT_LINE('NAME :'||v_name);
+    DBMS_OUTPUT.PUT_LINE('SAL :'||v_sal);
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+    DBMS_OUTPUT.PUT_LINE('NO GRADE FOUND');
+	WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('AN ERROR OCCURED'||SQLERRM);
+END;
+------------------------------------------------------------------------------------------------------------------------------------------------
+--WRITE A PL/SQL PROGRAM FOR DISPALY EMPNO,ENAME,JOB,SAL,DEPTNO,DNAME,LOC USING EMPLOYEE AND DEPARTMENT TABLES
+-- APPLY THE CONCEPTS (IF CONDTIONS AND MERGE)
+-- USING IF ELSE CONDTION
+DECLARE
+    v_empno  EMP.EMPNO%TYPE;
+    v_empname EMP.ENAME%TYPE;
+    v_job EMP.JOB%TYPE;
+    v_sal EMP.SAL%TYPE;
+    v_deptno EMP.DEPTNO%TYPE;
+    v_dname DEPT.DNAME%TYPE;
+    v_loc DEPT.LOC%TYPE;
+BEGIN
+    SELECT E1.EMPNO,E1.ENAME,E1.JOB,E1.SAL,E1.DEPTNO,D1.DNAME,D1.LOC
+    INTO v_empno,v_empname,v_job,v_sal,v_deptno,v_dname,v_loc
+    FROM EMP E1 
+    INNER JOIN DEPT D1
+    ON E1.DEPTNO = D1.DEPTNO
+    WHERE E1.EMPNO = 7900;
+	IF v_sal>1000 AND v_sal<=2500
+        THEN DBMS_OUTPUT.PUT_LINE('Medium sal');
+        ELSIF v_sal>2500 AND v_sal<=4000
+            THEN DBMS_OUTPUT.PUT_LINE('Good sal');
+    	ELSIF v_sal>4000 
+            THEN DBMS_OUTPUT.PUT_LINE('High sal');
+    	ELSE
+            DBMS_OUTPUT.PUT_LINE('Low sal');      
+    END IF;
+	DBMS_OUTPUT.PUT_LINE('Employee Number: ' || v_empno);
+    DBMS_OUTPUT.PUT_LINE('Employee Name: ' || v_empname);
+    DBMS_OUTPUT.PUT_LINE('Job: ' || v_job);
+    DBMS_OUTPUT.PUT_LINE('Salary: ' || v_sal);
+    DBMS_OUTPUT.PUT_LINE('Department Number: ' || v_deptno);
+    DBMS_OUTPUT.PUT_LINE('Department Name: ' || v_dname);
+    DBMS_OUTPUT.PUT_LINE('Location: ' || v_loc);
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+    DBMS_OUTPUT.PUT_LINE('No data found');
+	WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('An Error Occured'||SQLERRM);
+END;
+----------------------------------------------------------------------------------------------------------------------------
+
+--WRITE A PL/SQL PROGRAM FOR DISPALY EMPNO,ENAME,JOB,SAL,DEPTNO,DNAME,LOC USING EMPLOYEE AND DEPARTMENT TABLES
+-- APPLY THE CONCEPTS (IF CONDTIONS AND MERGE)
+-- USING CASE
+DECLARE
+    v_empno  EMP.EMPNO%TYPE;
+    v_empname EMP.ENAME%TYPE;
+    v_job EMP.JOB%TYPE;
+    v_sal EMP.SAL%TYPE;
+    v_deptno EMP.DEPTNO%TYPE;
+    v_dname DEPT.DNAME%TYPE;
+    v_loc DEPT.LOC%TYPE;
+BEGIN
+    SELECT E1.EMPNO,E1.ENAME,E1.JOB,E1.SAL,E1.DEPTNO,D1.DNAME,D1.LOC
+    INTO v_empno,v_empname,v_job,v_sal,v_deptno,v_dname,v_loc
+    FROM EMP E1 
+    INNER JOIN DEPT D1
+    ON E1.DEPTNO = D1.DEPTNO
+    WHERE E1.EMPNO = 7900;
+	CASE WHEN v_sal>1000 AND v_sal<2500
+        	THEN DBMS_OUTPUT.PUT_LINE('AVERAGE SALARY');
+	WHEN v_sal>=2500 AND v_sal<4000
+        	THEN DBMS_OUTPUT.PUT_LINE('MEDIUM SALARY');
+	WHEN v_sal>=4000 
+        	THEN DBMS_OUTPUT.PUT_LINE('HIGH SALARY');
+	ELSE
+     	DBMS_OUTPUT.PUT_LINE('BELOW AVEAGE SALARY');
+	END CASE;
+	DBMS_OUTPUT.PUT_LINE('Employee Number: ' || v_empno);
+    DBMS_OUTPUT.PUT_LINE('Employee Name: ' || v_empname);
+    DBMS_OUTPUT.PUT_LINE('Job: ' || v_job);
+    DBMS_OUTPUT.PUT_LINE('Salary: ' || v_sal);
+    DBMS_OUTPUT.PUT_LINE('Department Number: ' || v_deptno);
+    DBMS_OUTPUT.PUT_LINE('Department Name: ' || v_dname);
+    DBMS_OUTPUT.PUT_LINE('Location: ' || v_loc);
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+    DBMS_OUTPUT.PUT_LINE('No data found');
+	WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('An Error Occured'||SQLERRM);
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+

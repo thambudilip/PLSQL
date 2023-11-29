@@ -1,0 +1,43 @@
+CREATE OR REPLACE TYPE res_type AS OBJECT (
+    total NUMBER,
+    average NUMBER(5,2)
+);
+
+
+CREATE OR REPLACE FUNCTION st_marks(p_m1 NUMBER,p_m2 NUMBER,p_m3 NUMBER,p_m4 NUMBER,p_m5 NUMBER)
+RETURN res_type
+IS
+	v_totalmarks NUMBER;
+	v_avgmarks NUMBER(5,2);
+	result res_type;
+	BEGIN
+    	v_totalmarks := p_m1+p_m2+p_m3+p_m4+p_m5;
+		v_avgmarks := v_totalmarks/5;
+		result := res_type(v_totalmarks,v_avgmarks);
+		RETURN result;
+	END;
+
+
+DECLARE 
+result res_type; 
+BEGIN <<st_details>>
+result := st_marks(94,74,74,99,92);
+DBMS_OUTPUT.PUT_LINE('TOTAL MARKS :'||' '||result.total);
+DBMS_OUTPUT.PUT_LINE('AVERAGE MARKS :'||' '||result.average);
+IF result.average>=80 AND  result.average<=100 THEN
+    DBMS_OUTPUT.PUT_LINE('A GRADE'); 
+ELSIF  result.average>=60 AND  result.average<=79 THEN
+	DBMS_OUTPUT.PUT_LINE('B GRADE');
+ELSIF  result.average>=50 AND  result.average<=69 THEN
+    DBMS_OUTPUT.PUT_LINE('C GRADE');
+ELSIF  result.average>=35 AND  result.average<=49 THEN
+    DBMS_OUTPUT.PUT_LINE('D GRADE');
+ELSE
+    DBMS_OUTPUT.PUT_LINE('STUDENT GRADE IS FAIL AND NO GRADE...');
+END IF;
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+    DBMS_OUTPUT.PUT_LINE('No data found....');
+	WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('An Error occcured...'||SQLERRM);
+END st_details;

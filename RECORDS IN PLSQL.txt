@@ -1,0 +1,136 @@
+--RECORDS IN PL/SQL
+-----------------------
+-- EXAMPLE FOR RECORDS
+
+
+CREATE TABLE DEPT AS SELECT * FROM SCOTT.DEPT;
+
+DECLARE  -- Declaraion
+    TYPE EmployeeRecType IS RECORD  -- creating a record 
+    (
+     v_deptno DEPT.DEPTNO%TYPE,
+     v_dname DEPT.DNAME%TYPE,
+	 v_loc   DEPT.LOC%TYPE
+    );
+	 v_emprec EmployeeRecType;  -- Declare in a record variable
+BEGIN -- program starts
+    v_emprec.v_deptno := 50;
+	v_emprec.v_dname := 'DEVELOPMENT';
+	v_emprec.v_loc   := 'INDIA';
+DBMS_OUTPUT.PUT_LINE('DEPTNO:'||' '||v_emprec.v_deptno);
+DBMS_OUTPUT.PUT_LINE('DEPTNAME'||' '||v_emprec.v_dname);
+DBMS_OUTPUT.PUT_LINE('LOCATION:'||' '||v_emprec.v_loc);    
+EXCEPTION -- exception block 
+    WHEN NO_DATA_FOUND THEN
+        DBMS_OUTPUT.PUT_LINE('no records found.');
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+END; -- program end
+
+DECLARE -- declaration  section
+    TYPE EmployeeRecType IS RECORD   -- creating a record 
+    (
+     v_deptno DEPT.DEPTNO%TYPE,
+     v_dname DEPT.DNAME%TYPE,
+	 v_loc   DEPT.LOC%TYPE
+    );
+	 v_emprec EmployeeRecType; -- Declare in a record variable
+BEGIN   -- program starts
+    SELECT DEPTNO,DNAME,LOC INTO v_emprec
+    FROM DEPT
+    WHERE DEPTNO = 20;
+	DBMS_OUTPUT.PUT_LINE('DEPTNO :  '||v_emprec.v_deptno);
+		DBMS_OUTPUT.PUT_LINE('DEPTNAME :  '||v_emprec.v_dname);
+	DBMS_OUTPUT.PUT_LINE('LOC :  '||v_emprec.v_loc);
+EXCEPTION  -- exception block 
+    WHEN NO_DATA_FOUND THEN
+        DBMS_OUTPUT.PUT_LINE('no records found.');
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+END;  -- program end
+
+DECLARE  -- Declaraion
+   TYPE DeptRecType IS RECORD (   -- creating a record 
+      v_deptno DEPT.DEPTNO%TYPE,
+      v_dname  DEPT.DNAME%TYPE,
+      v_loc    DEPT.LOC%TYPE );
+   dept_rec DeptRecType;   -- Declare in a record variable
+BEGIN   -- program starts
+   SELECT DEPTNO,DNAME,LOC INTO dept_rec
+      FROM DEPT WHERE DEPTNO = 20;
+	   DBMS_OUTPUT.PUT_LINE('DNAME:  '||dept_rec.v_dname);	
+	   DBMS_OUTPUT.PUT_LINE('DEPTNO:  '||dept_rec.v_deptno);	
+EXCEPTION  -- exception block 
+    WHEN NO_DATA_FOUND THEN
+        DBMS_OUTPUT.PUT_LINE('no records found.');
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+END;-- program end
+
+CREATE TABLE EMP AS SELECT * FROM SCOTT.EMP;
+
+DECLARE  -- Declaraion
+    TYPE EmployeeRecType IS RECORD   -- creating a record 
+    (
+     v_empno  EMP.EMPNO%TYPE,
+    v_ename EMP.ENAME%TYPE,
+    v_job  EMP.JOB%TYPE
+    );
+v_emprec  EmployeeRecType;  -- Declare in a record variable
+BEGIN   -- program starts
+    SELECT EMPNO,ENAME,JOB INTO v_emprec
+    FROM EMP
+    WHERE EMPNO = 7839;
+	DBMS_OUTPUT.PUT_LINE('NAME:'||' '||v_emprec.v_ename);
+EXCEPTION  ---- exception block 
+    WHEN NO_DATA_FOUND THEN
+        DBMS_OUTPUT.PUT_LINE('no records found.');
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error: ' || SQLERRM);
+END;-- program end
+
+
+DECLARE
+TYPE EmployeeRecType IS RECORD(
+    v_name EMP.ENAME%TYPE,
+    v_emp_det EMP%ROWTYPE
+)   ;
+v_emprec EmployeeRecType;
+BEGIN
+    SELECT * INTO v_emprec.v_emp_det
+    FROM EMP
+    WHERE EMPNO = 7839;
+	DBMS_OUTPUT.PUT_LINE('NAME:  '||v_emprec.v_emp_det.ENAME);	
+	DBMS_OUTPUT.PUT_LINE('DEPTNO:  '||v_emprec.v_emp_det.DEPTNO);	
+END;
+
+
+
+
+/* Write a  pl/sql program for display an employee number,ename,job,sal,deptno,dname,loc*/
+
+DECLARE
+TYPE emprec_type IS RECORD
+    (
+    v_emprec EMP%ROWTYPE,
+    v_deptrec DEPT%ROWTYPE
+    );
+emprec_details emprec_type;
+BEGIN
+    -- Select and assign employee data
+SELECT EMP.* INTO  emprec_details.v_emprec
+FROM EMP 
+WHERE EMP.EMPNO = 7902 ;
+    -- Select and assign department data
+SELECT DEPT.* INTO emprec_details.v_deptrec
+FROM DEPT
+WHERE DEPT.DEPTNO = emprec_details.v_emprec.DEPTNO;
+DBMS_OUTPUT.PUT_LINE('ENAME:'||emprec_details.v_emprec.ENAME);
+DBMS_OUTPUT.PUT_LINE('EMPLOYEE NUMBER:'||emprec_details.v_emprec.EMPNO);
+DBMS_OUTPUT.PUT_LINE('JOB:'||emprec_details.v_emprec.JOB);
+DBMS_OUTPUT.PUT_LINE('DEPTNO:'||emprec_details.v_deptrec.DEPTNO);
+DBMS_OUTPUT.PUT_LINE('DNAME:'||emprec_details.v_deptrec.DNAME);
+DBMS_OUTPUT.PUT_LINE('LOCATION'||emprec_details.v_deptrec.LOC);
+END;
+
+

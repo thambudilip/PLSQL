@@ -1,0 +1,111 @@
+DECLARE
+  -- Associative array indexed by string:
+  
+  TYPE population IS TABLE OF NUMBER  -- Associative array type
+    INDEX BY VARCHAR2(64);            --  indexed by string
+  
+  city_population  population;        -- Associative array variable
+  i  VARCHAR2(64);                    -- Scalar variable
+  
+BEGIN
+  -- Add elements (key-value pairs) to associative array:
+ 
+  city_population('Smallville')  := 2000;
+  city_population('Midland')     := 750000;
+  city_population('Megalopolis') := 1000000;
+ 
+  -- Change value associated with key 'Smallville':
+ 
+  city_population('Smallville') := 2001;
+ 
+  -- Print associative array:
+ 
+  i := city_population.first;  -- Get first element of array
+ 
+  WHILE i IS NOT NULL LOOP
+    DBMS_Output.PUT_LINE
+      ('Population of ' || i || ' is ' || city_population(i));
+    i := city_population.NEXT(i);  -- Get next element of array
+  END LOOP;
+END;
+-----------------------------------------------------------------------------------------------------------------------------------------
+
+DECLARE
+    TYPE subject IS TABLE OF VARCHAR(15); 
+    TYPE teacher IS TABLE OF VARCHAR2(20);
+    subjectnames subject; 
+    subjectteacher teacher; 
+    summ integer; 
+BEGIN
+ 
+    -- adding subject and its teachers to the table
+    subjectnames := subject('PLSQL', 'SELENIUM', 'JMETER'); 
+    subjectteacher:= teacher('Sashi', 'Mala', 'Mukund');
+ 
+    -- returns count of number of elements in nested table
+    summ:= subjectteacher.count;
+ 
+    -- printing the content to the console
+    dbms_output.put_line('Total Number of Teachers: '|| summ); 
+   LOOP 
+         dbms_output.put_line('Subject:'||subjectnames||', Teacher:' || subjectteacher); 
+    end loop; 
+END;
+--------------------------------------------------------------------------------------------------------------------------------
+-- NESTED TABLE
+
+    SELECT * FROM HR.LOCATIONS;
+
+CREATE TABLE LOCATIONS AS SELECT * FROM HR.LOCATIONS;
+
+
+DECLARE
+    TYPE loc_type IS TABLE OF CITY.LOCATIONS%TYPE;
+	office_loc loc_type;
+BEGIN
+    office_loc := loc_type('Southlake','Whitehorse','Geneva','Mexico City','Sao Paulo');
+	FOR i IN 1.. office_loc.COUNT()
+        LOOP
+        DBMS_OUTPUT.PUT_LINE(office_loc(i));
+        END LOOP;
+END;
+
+
+-----------------------------------------------------------------------------------
+--EXAMPLES FOR VARRAY
+----------------------------
+SELECT * FROM SCOTT.EMP;
+CREATE TABLE EMP AS SELECT * FROM SCOTT.EMP;
+ALTER TABLE EMP ADD  PHONO_NUMBER NUMBER(13);
+SELECT * FROM EMP;
+
+DECLARE
+    TYPE phonenumbertype IS VARRAY(3) OF NUMBER(20);
+	phonenumbers  phonenumbertype;
+BEGIN
+    phonenumbers := phonenumbertype('97856578','7896555656','45456498');
+EXCEPTION
+	WHEN NO_DATA_FOUND THEN
+    DBMS_OUTPUT.PUT_LINE('No data found');
+	WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('An Error occured'||SQLERRM);
+END;
+
+--------------------------------------------------------------------------------------------------------------------------------
+
+-- ASSIGNING NULL VALUES TO THE NESTED TABLE
+-----------------------------------------------------------------------------------------------------
+
+DECLARE
+TYPE empsaltype IS TABLE OF VARCHAR2(20);
+empsal empsaltype;
+BEGIN
+    empsal  := NULL;CREATE TABLE EMP AS SELECT * FROM SCOTT.EMP;
+
+	DBMS_OUTPUT.PUT_LINE('EMPSAL'||empsal);
+END;
+
+------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+

@@ -1,0 +1,226 @@
+Triggers:
+
+Definition of Triggers:
+
+Trigger is a specialized procedure , triggers are automatically/implicitly executed for any any DML(Data Manipulation Language) on the table.no need to call or executed explicitly.
+Trigger is a Database object , triggers are saved into a database.
+
+Syntax:
+
+Create [ or Replace ] Trigger Trigger_name
+[ Before | After | Instead of ]
+[Insert [or] | Update  [or] | Delete ] on Table_name
+[for each row] [ when (condtion) ]
+[Declare <declare section>]
+Begin
+[Exception]
+End;
+
+Parts of a trigger:
+---------------------
+
+1.Trigger Event
+
+Trigger was executed based on  the DML operations.
+Insert operation
+Update operation
+Delete operation
+
+2. Trigger Restriction
+
+Trigger are Executed  before performing the DML operations or after performs the DML operations.
+
+Before Event - Trigger are Executed  before performing the DML operations
+After Event - Trigger are Executed  after performing the DML operations
+Instead of - The INSTEAD OF clause is used for creating trigger on a view.
+
+
+
+Types:
+--------
+
+Triggers are classifed into 2 types.
+
+1.DDL trigger 
+
+DDL triggers are created for DDL operations like Create, Alter,Drop,Truncate and Rename purposes.
+DDL triggers are created by the Database administrator or system administrator , Developers can't create a DDL triggers.
+
+2.DML trigger
+
+DML triggers are created for DML operations like Insert,Update and Delete.
+DML triggers are executed Implicitly when users are performing DML operations on the table.
+
+DML Triggers are 2 types.
+
+1. Row level
+2.Statement level or Table level Trigger 
+
+1.Row level 
+ If we are mentioned  FOR EACH ROW at the time of creating trigger, it is called as row level trigger.
+Row level triggers are Executing each record on the table.
+
+2.Statement level or Table level Trigger 
+
+ If we are not mentioned  FOR EACH ROW at the time of creating trigger , the trigger is called statement level or table level trigger.
+Statement level are Executed at once and affect all the records in the table.
+
+
+
+Usage of Triggers:
+---------------------
+
+To maintain Buisness data in uniform case.
+To maintain Buisness Audit information of any table data.
+Control the DML commands.
+Implement complex validations.
+Implement complex buisness rule.
+
+
+Examples for triggers:
+--------------------------
+
+/* Create a item table */
+
+DROP TABLE ITEM;
+
+CREATE TABLE ITEM(
+    ITEM_NO VARCHAR2(10),
+    PRICE NUMBER(7,2),
+    QTY NUMBER(3),
+    NAME VARCHAR2(100));
+
+ALTER TABLE ITEM ADD CONSTRAINT item_pk PRIMARY KEY (ITEM_NO);
+
+/* Inserting records into the item table */
+
+INSERT INTO ITEM(ITEM_NO,PRICE,QTY,NAME) VALUES ('IT01',50,150,'RICE');
+INSERT INTO ITEM(ITEM_NO,PRICE,QTY,NAME) VALUES ('IT02',5,70,'PENCIL');
+INSERT INTO ITEM(ITEM_NO,PRICE,QTY,NAME) VALUES ('IT03',80000,40,'TRACTOR');
+INSERT INTO ITEM(ITEM_NO,PRICE,QTY,NAME) VALUES ('IT04',75000,15,'CAR');
+INSERT INTO ITEM(ITEM_NO,PRICE,QTY,NAME) VALUES ('IT05',75000,0,'BIKE');
+
+SELECT * FROM ITEM;
+
+/* Create a  orders table */
+
+DROP TABLE ORDERS;
+CREATE TABLE ORDERS(
+    ORDER_NO NUMBER,
+    ORDER_DATE DATE,
+    ITEM_NO VARCHAR2(10),
+    ORDER_QTY NUMBER,
+    TOTAL_PRICE NUMBER,
+    RE_ORDER_LEVEL NUMBER
+);
+
+ALTER TABLE ORDERS ADD CONSTRAINTS order_pk PRIMARY KEY(ORDER_NO);
+ALTER TABLE ORDERS ADD CONSTRAINTS orders_fk FOREIGN KEY(ITEM_NO) REFERENCES ITEM(ITEM_NO);
+
+/* Insert records into orders  the table */
+
+INSERT INTO ORDERS(ORDER_NO,ORDER_DATE,ITEM_NO,ORDER_QTY) VALUES (01,SYSDATE,'IT01',2);
+INSERT INTO ORDERS(ORDER_NO,ORDER_DATE,ITEM_NO,ORDER_QTY) VALUES (02,SYSDATE,'IT01',4);
+INSERT INTO ORDERS(ORDER_NO,ORDER_DATE,ITEM_NO,ORDER_QTY) VALUES (03,SYSDATE,'IT01',120);
+INSERT INTO ORDERS(ORDER_NO,ORDER_DATE,ITEM_NO,ORDER_QTY) VALUES (04,SYSDATE,'IT05',6);
+
+SELECT * FROM ITEM;
+SELECT * FROM ORDERS;
+
+DELETE FROM ORDERS WHERE ORDER_NO = 3;
+
+-- trigger for calculating toal price on orders table
+
+CREATE OR REPLACE TRIGGER update_total_price
+BEFORE INSERT OR UPDATE ON ORDERS
+FOR EACH ROW
+DECLARE
+    v_price ITEM.PRICE%TYPE;
+BEGIN
+    SELECT PRICE
+    INTO v_price
+    FROM ITEM
+    WHERE ITEM_NO = :NEW.ITEM_NO;
+    :NEW.TOTAL_PRICE := v_price * :NEW.ORDER_QTY;
+END;
+
+-- creating trigger for update a quantity after order the item
+
+DROP TRIGGER update_qty;
+CREATE OR REPLACE TRIGGER update_qty
+AFTER INSERT ON ITEM
+FOR EACH ROW
+DECLARE
+    v_qty ITEM.QTY%TYPE;
+    v_order_qty ORDERS.ORDER_QTY%TYPE;
+BEGIN
+    SELECT I.QTY, O.ORDER_QTY INTO v_qty, v_order_qty
+    FROM ITEM I     INNER JOIN ORDERS O 
+    ON I.ITEM_NO = O.ITEM_NO ;
+    :NEW.QTY := v_qty - v_order_qty;
+END;  /*ORA-04084: cannot change NEW values for this trigger type */ -- : New is not supported after insert , use before it works
+
+
+-- 1.creating trigger for update a quantity after order the item
+
+DROP TRIGGER update_qty_for_orders;
+CREATE OR REPLACE TRIGGER update_qty_for_orders
+AFTER INSERT ON ORDERS
+FOR EACH ROW
+BEGIN
+    UPDATE ITEM
+    SET QTY = QTY - :NEW.ORDER_QTY
+    WHERE ITEM_NO = :NEW.ITEM_NO;
+END;
+
+--2. trigger for qty = 0 then display a message as 'no more stocks' 
+
+CREATE OR REPLACE TRIGGER no_more_items
+BEFORE INSERT ON ORDERS
+FOR EACH ROW
+DECLARE
+    v_qty ITEM.QTY%TYPE;
+BEGIN
+    SELECT QTY INTO v_qty
+    FROM ITEM
+    WHERE ITEM_NO = :NEW.ITEM_NO;    
+    IF v_qty = 0
+    THEN
+    DBMS_OUTPUT.PUT_LINE('No more stocks');
+END IF;
+END;
+
+--3. re order level trigger for particular item is sold.
+
+DROP TABLE order_level ;
+CREATE OR REPLACE TRIGGER order_levels
+BEFORE INSERT ON ORDERS
+FOR EACH ROW
+DECLARE
+    v_qty ITEM.QTY%TYPE;
+BEGIN
+    SELECT QTY INTO v_qty
+    FROM ITEM
+    WHERE ITEM_NO = :NEW.ITEM_NO;
+IF v_qty < 10
+THEN 
+DBMS_OUTPUT.PUT_LINE('Please order the items');
+--RAISE_APPLICATION_ERROR(-20001, 'Re-order quantity cannot be greater than the available quantity.');
+END IF;
+END;
+
+4. If user trying to update a primary key column , then display an error message "you can't edit the primary key column".
+
+CREATE OR REPLACE TRIGGER primarykey_notaffected
+BEFORE UPDATE ON ITEM
+FOR  EACH ROW 
+DECLARE
+BEGIN
+    IF :OLD.ITEM_NO <> :NEW.ITEM_NO 
+    THEN
+    RAISE_APPLICATION_ERROR(-20005,'You cant update a primary key clumn values');
+	END IF;
+END;
+
+SELECT * FROM ITEM;
+

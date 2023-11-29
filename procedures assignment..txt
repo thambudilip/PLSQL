@@ -1,0 +1,180 @@
+-- get the deaprtment id and print who earns highest salary
+
+CREATE OR REPLACE PROCEDURE emp_proc(v_deptid NUMBER)
+IS
+v_sal EMP.SAL%TYPE; 
+BEGIN
+SELECT MAX(SAL) INTO v_sal
+FROM EMP
+WHERE DEPTNO = v_deptid  ;
+DBMS_OUTPUT.PUT_LINE('DEPTNO:'||v_deptid);
+DBMS_OUTPUT.PUT_LINE('SALARY:'||v_sal);
+END emp_proc;
+
+EXEC emp_proc(10);
+
+-- Create department wise costing report
+
+CREATE OR REPLACE PROCEDURE emp_proc1(v_deptno EMP.DEPTNO%TYPE)
+IS
+    v_sal EMP.SAL%TYPE;
+BEGIN
+    SELECT SUM(SAL) INTO v_sal
+    FROM EMP
+    WHERE DEPTNO = v_deptno;
+DBMS_OUTPUT.PUT_LINE('SALARY:'||v_sal);
+DBMS_OUTPUT.PUT_LINE('DEPTNO:'||v_deptno);
+END emp_proc1;
+
+BEGIN
+    emp_proc1(20);
+END;
+
+
+-- print employee first name based on job id
+
+CREATE OR REPLACE PROCEDURE emp_proc2(v_jobid NUMBER)
+IS
+v_name EMP.ENAME%TYPE;
+v_job EMP.JOB%TYPE;
+BEGIN
+    SELECT ENAME,JOB INTO v_name,v_job
+    FROM EMP
+    WHERE EMPNO = v_jobid;
+DBMS_OUTPUT.PUT_LINE('ENAME:'||v_name);
+DBMS_OUTPUT.PUT_LINE('EPLOYEE NUMBER:'||v_job);
+END emp_proc2;
+
+exec emp_proc2(7839);
+
+--get the region name and print all the countries along with locations
+
+CREATE TABLE COUNTRIES AS SELECT * FROM HR.COUNTRIES;
+CREATE TABLE LOCATIONS AS  SELECT * FROM HR.LOCATIONS;
+CREATE TABLE REGIONS AS SELECT * FROM HR.REGIONS;
+
+CREATE OR REPLACE PROCEDURE reg_proc(v_regionname REGIONS.REGION_NAME%TYPE)
+IS
+v_countryname COUNTRIES.COUNTRY_NAME%TYPE;
+v_locname LOCATIONS.CITY%TYPE;
+CURSOR emp_cur IS SELECT C.COUNTRY_NAME,L.CITY 
+FROM COUNTRIES C
+INNER JOIN  LOCATIONS L ON C.COUNTRY_ID = L.COUNTRY_ID
+INNER JOIN REGIONS R ON C.REGION_ID = R.REGION_ID 
+WHERE R.REGION_NAME = v_regionname;
+BEGIN
+    OPEN emp_cur;
+LOOP
+    FETCH emp_cur INTO v_countryname,v_locname;
+DBMS_OUTPUT.PUT_LINE('COUNTRY NAME:'||v_countryname);
+DBMS_OUTPUT.PUT_LINE('LOCATIONS NAME:'||v_locname);
+EXIT WHEN emp_cur%NOTFOUND;
+END LOOP;
+	CLOSE emp_cur;
+END;
+
+exec reg_proc('Europe');
+
+-- Print the hiredate formatting just for the month
+
+CREATE OR REPLACE PROCEDURE date_proc(v_id EMP.EMPNO%TYPE)
+IS
+    v_date VARCHAR2(100);
+BEGIN
+    SELECT TO_CHAR(HIREDATE,'DD-MONTH-YYYY') INTO v_date
+    FROM EMP
+    WHERE EMPNO = v_id;
+DBMS_OUTPUT.PUT_LINE('HIREDATE:'||v_date);
+END date_proc;
+
+EXECUTE date_proc(7934);
+SELECT * FROM EMP;
+
+-- PACKAGE CREATION
+
+CREATE OR REPLACE PACKAGE emp_package
+AS
+PROCEDURE emp_proc(v_deptid NUMBER);
+PROCEDURE emp_proc1(v_deptno EMP.DEPTNO%TYPE);
+PROCEDURE emp_proc2(v_jobid NUMBER);
+PROCEDURE reg_proc(v_regionname REGIONS.REGION_NAME%TYPE);
+PROCEDURE date_proc(v_id EMP.EMPNO%TYPE);
+END emp_package;
+
+-- PACKAGE BODY
+CREATE OR REPLACE PACKAGE BODY emp_package
+IS
+PROCEDURE emp_proc(v_deptid NUMBER)
+IS
+v_sal EMP.SAL%TYPE; 
+BEGIN
+SELECT MAX(SAL) INTO v_sal
+FROM EMP
+WHERE DEPTNO = v_deptid  ;
+DBMS_OUTPUT.PUT_LINE('DEPTNO:'||v_deptid);
+DBMS_OUTPUT.PUT_LINE('SALARY:'||v_sal);
+END emp_proc;
+PROCEDURE emp_proc1(v_deptno EMP.DEPTNO%TYPE)
+IS
+    v_sal EMP.SAL%TYPE;
+BEGIN
+    SELECT SUM(SAL) INTO v_sal
+    FROM EMP
+    WHERE DEPTNO = v_deptno;
+DBMS_OUTPUT.PUT_LINE('SALARY:'||v_sal);
+DBMS_OUTPUT.PUT_LINE('DEPTNO:'||v_deptno);
+END emp_proc1;
+PROCEDURE emp_proc2(v_jobid NUMBER)
+IS
+v_name EMP.ENAME%TYPE;
+v_job EMP.JOB%TYPE;
+BEGIN
+    SELECT ENAME,JOB INTO v_name,v_job
+    FROM EMP
+    WHERE EMPNO = v_jobid;
+DBMS_OUTPUT.PUT_LINE('ENAME:'||v_name);
+DBMS_OUTPUT.PUT_LINE('EPLOYEE NUMBER:'||v_job);
+END emp_proc2;
+PROCEDURE reg_proc(v_regionname REGIONS.REGION_NAME%TYPE)
+IS
+v_countryname COUNTRIES.COUNTRY_NAME%TYPE;
+v_locname LOCATIONS.CITY%TYPE;
+CURSOR emp_cur IS SELECT C.COUNTRY_NAME,L.CITY 
+FROM COUNTRIES C
+INNER JOIN  LOCATIONS L ON C.COUNTRY_ID = L.COUNTRY_ID
+INNER JOIN REGIONS R ON C.REGION_ID = R.REGION_ID 
+WHERE R.REGION_NAME = v_regionname;
+BEGIN
+    OPEN emp_cur;
+LOOP
+    FETCH emp_cur INTO v_countryname,v_locname;
+DBMS_OUTPUT.PUT_LINE('COUNTRY NAME:'||v_countryname);
+DBMS_OUTPUT.PUT_LINE('LOCATIONS NAME:'||v_locname);
+EXIT WHEN emp_cur%NOTFOUND;
+END LOOP;
+    CLOSE emp_cur;
+END;
+PROCEDURE date_proc(v_id EMP.EMPNO%TYPE)
+IS
+    v_date VARCHAR2(100);
+BEGIN
+    SELECT TO_CHAR(HIREDATE,'DD-MONTH-YYYY') INTO v_date
+    FROM EMP
+    WHERE EMPNO = v_id;
+DBMS_OUTPUT.PUT_LINE('HIREDATE:'||v_date);
+END date_proc;
+END emp_package;
+
+-- calling a procedures using a  package specication name
+
+EXECUTE emp_package.emp_proc2(7839);
+
+EXECUTE emp_package.reg_proc('Europe');
+
+
+
+
+
+
+
+

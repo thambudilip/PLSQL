@@ -1,0 +1,177 @@
+ROLLBACK;
+DROP TABLE CUSTOMER; /*CREATING A TABLE FOR CUSTOMER*/ 
+CREATE TABLE CUSTOMER(
+    CUS_ID VARCHAR2(20),
+    CUS_NAME NVARCHAR2(100),
+    CUS_ADDRESS NVARCHAR2(200),
+    CUS_EMAIL NVARCHAR2(50),
+    CUS_MOB NVARCHAR2(13)
+);
+
+BEGIN<<Customer>> /*INSERT A CUSTOMER RECORDS*/
+    INSERT INTO CUSTOMER(CUS_ID,CUS_NAME,CUS_ADDRESS,CUS_EMAIL,CUS_MOB) VALUES
+    (1701,'BALASUBRAMANI','COIMBATORE','balasubramanian.k@kgisl.com','9632067700');
+END Customer;
+BEGIN<<Customer>>
+    INSERT INTO CUSTOMER(CUS_ID,CUS_NAME,CUS_ADDRESS,CUS_EMAIL,CUS_MOB) VALUES
+   (1702,'KOKILA','TIRUPUR','kokila.rt@kgisl.com','9003240803');
+END Customer;
+BEGIN<<Customer>>
+    INSERT INTO CUSTOMER(CUS_ID,CUS_NAME,CUS_ADDRESS,CUS_EMAIL,CUS_MOB) VALUES
+(173,'MADUMITHA','COIMBATORE','madhumitha.kr@kgisl.com','8220781072');
+END Customer;
+   BEGIN<<Customer>>
+    INSERT INTO CUSTOMER(CUS_ID,CUS_NAME,CUS_ADDRESS,CUS_EMAIL,CUS_MOB) VALUES
+(1704,'BALASUBRAMANI','ARIYALUR','dhinesh.v@kgisl.com','8754447528');
+END Customer; 
+
+SELECT * FROM CUSTOMER; /* SELECT A CUSTOMER TABLE*/
+
+DECLARE /*UPDATE WITH ROW COUNT*/
+    num_rows NUMBER;
+BEGIN<<cus_update>>
+     UPDATE CUSTOMER SET CUS_NAME = 'BALASUBRAMANIAN' 
+    WHERE CUS_ID = 1704;
+	num_rows := SQL%ROWCOUNT;
+	DBMS_OUTPUT.PUT_LINE(num_rows || ' ROWS UPDATED');
+END cus_update;
+
+DECLARE
+    num_rows1 VARCHAR2(50);
+BEGIN
+      UPDATE CUSTOMER  SET CUS_NAME = 'MADUMITHA KRISHNAMURTHY' 
+     WHERE CUS_ID = 173;
+	num_rows1 := SQL%ROWCOUNT;
+	DBMS_OUTPUT.PUT_LINE(num_rows1 || ' ROWS UPDATED');
+END;
+
+DECLARE /* DELETE WITH APPLY ROW COUNT*/ 
+    num_rows2 VARCHAR2(50);
+BEGIN <<cus_del>>
+    DELETE FROM CUSTOMER
+    WHERE CUS_NAME = 'KOKILKA';
+	DELETE FROM CUSTOMER WHERE CUS_NAME = 'BALASUBRAMANI';
+    num_rows2 := SQL%ROWCOUNT;
+	DBMS_OUTPUT.PUT_LINE(num_rows2 || ' ROWS DELETED');
+END  cus_del;
+
+DROP TABLE CUSTOMER1;
+CREATE TABLE CUSTOMER1 AS SELECT * FROM CUSTOMER; /* CREATE A TABLE CUSTOMER1 SAME AS CUSTOMER*/ 
+
+BEGIN<<cus1_insert>> /* INSERT A VALUE TO CUSTOMER1 TABLE */
+    INSERT INTO CUSTOMER1(CUS_ID,CUS_NAME,CUS_ADDRESS,CUS_EMAIL,CUS_MOB) 
+    VALUES(1702,'DILIPKUMAR','ATHIPALAYAM','DILIPKUMAR.P@KGISL.COM','8973172512');
+END cus_insert;
+
+SELECT * FROM CUSTOMER1;
+
+BEGIN<<merge>>
+MERGE INTO CUSTOMER C
+USING CUSTOMER1 C1
+ON  (C.CUS_ID = C1.CUS_ID)
+WHEN MATCHED THEN  
+		UPDATE SET 
+C.CUS_NAME = C1.CUS_NAME,
+C.CUS_ADDRESS = C1.CUS_ADDRESS,
+C.CUS_EMAIL = C1.CUS_EMAIL,
+C.CUS_MOB = C1.CUS_MOB
+WHEN NOT MATCHED THEN
+INSERT(CUS_ID,CUS_NAME,CUS_ADDRESS,CUS_EMAIL,CUS_MOB) VALUES
+		(C1.CUS_ID,C1.CUS_NAME,C1.CUS_ADDRESS,C1.CUS_EMAIL,C1.CUS_MOB);
+END merge;
+-------------------------------------------------------------------------------------------------------------------------------------------------------
+
+Assign the values for where condition in a different way
+--------------------------------------------------------------------
+CREATE TABLE EMP AS SELECT * FROM SCOTT.EMP;
+
+DECLARE
+v_sal EMP.SAL%TYPE := 5000;
+v_empname EMP.ENAME%TYPE;
+BEGIN  
+    SELECT ENAME,SAL INTO v_empname,v_sal
+    FROM EMP
+    WHERE  SAL = v_sal ;
+	DBMS_OUTPUT.PUT_LINE('NAME : '|| ' ' ||v_empname);
+	DBMS_OUTPUT.PUT_LINE('SAL : '|| ' '|| v_sal);
+END;
+
+SELECT * FROM EMP;
+
+
+ 
+DECLARE
+v_sal EMP.SAL%TYPE :=0 ;
+v_empname EMP.ENAME%TYPE :=UPPER('Scott');
+BEGIN  
+    SELECT ENAME,SAL INTO v_empname,v_sal
+    FROM EMP
+    WHERE  ENAME = v_empname ;
+	DBMS_OUTPUT.PUT_LINE('NAME : '|| ' ' ||v_empname);
+	DBMS_OUTPUT.PUT_LINE('SAL : '|| ' '|| v_sal);
+END;
+
+DECLARE
+v_sal EMP.SAL%TYPE :=0 ;
+v_empname EMP.ENAME%TYPE :=UPPER('Scott');
+sal1 EMP.SAL%TYPE :=1020;
+BEGIN  
+    sal1 := 2000+1000;
+    SELECT ENAME,SAL INTO v_empname,v_sal
+    FROM EMP
+    WHERE  ENAME = v_empname ;
+	DBMS_OUTPUT.PUT_LINE('NAME : '|| ' ' ||v_empname);
+	DBMS_OUTPUT.PUT_LINE('SAL : '|| ' '|| v_sal);
+	DBMS_OUTPUT.PUT_LINE('SAL1 :' || ' '|| sal1);
+END;
+---------------------------------------------------------------------------------------------------------------------------------------------------
+
+-- PRACTICE 4
+---------------
+SELECT * FROM HR.DEPARTMENTS;
+
+DROP TABLE DEPARTMENTS;
+
+CREATE TABLE DEPARTMENTS AS SELECT * FROM HR.DEPARTMENTS;
+
+--1. 
+DECLARE
+v_max_deptno  NUMBER :=0;
+    BEGIN
+        SELECT  MAX(DEPARTMENT_ID) INTO v_max_deptno
+        FROM DEPARTMENTS;
+		DBMS_OUTPUT.PUT_LINE('The maximum department id is :' || v_max_deptno);
+END;
+
+--2. 
+
+SELECT * FROM DEPARTMENTS;
+
+DECLARE
+    num_rows   NUMBER;
+    v_max_deptno  NUMBER :=0;
+    v_department_name DEPARTMENTS.DEPARTMENT_NAME%TYPE;
+	v_department_id NUMBER;
+			BEGIN
+            SELECT  MAX(DEPARTMENT_ID)+10 INTO v_max_deptno
+            FROM DEPARTMENTS;
+    	    v_department_id := v_max_deptno;
+       		 v_department_name := 'Education';
+			num_rows := SQL%ROWCOUNT;
+    		INSERT INTO DEPARTMENTS (DEPARTMENT_ID,DEPARTMENT_NAME,LOCATION_ID)
+            VALUES(v_department_id,v_department_name,NULL);
+    		DBMS_OUTPUT.PUT_LINE('The maximum department_id is : ' || v_department_id);
+    		DBMS_OUTPUT.PUT_LINE(num_rows || ' '|| 'rows affected');
+			DBMS_OUTPUT.PUT_LINE(v_max_deptno || ' '|| 'max id');
+END;
+
+SELECT * FROM DEPARTMENTS
+WHERE DEPARTMENT_ID = 280;
+
+
+
+
+
+
+
+ 

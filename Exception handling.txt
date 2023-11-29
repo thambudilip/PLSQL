@@ -1,0 +1,232 @@
+CREATE TABLE EMP AS SELECT * FROM SCOTT.EMP;
+CREATE TABLE DEPT AS SELECT * FROM SCOTT.DEPT;
+
+-- simple example for plsql exception handling (pre- defined exception)
+
+DECLARE
+    v_sal EMP.SAL%TYPE;
+BEGIN
+    SELECT SAL INTO v_sal
+    FROM EMP
+    WHERE DEPTNO = 20;
+DBMS_OUTPUT.PUT_LINE('SALARY:'||v_sal);
+EXCEPTION 
+    WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('An Error occured : '||SQLERRM);
+	DBMS_OUTPUT.PUT_LINE('Error Code:'||SQLCODE);
+END;   /*An Error occured : ORA-01422: exact fetch returns more than requested number of rows
+Error Code:-1422 */
+
+-- simple example for plsql exception handling (pre- defined exception)
+
+DECLARE
+    v_sal EMP.SAL%TYPE;
+BEGIN
+    SELECT SAL INTO v_sal
+    FROM EMP
+    WHERE DEPTNO = 20;
+DBMS_OUTPUT.PUT_LINE('SALARY:'||v_sal);
+EXCEPTION 
+    WHEN TOO_MANY_ROWS THEN
+      DBMS_OUTPUT.PUT_LINE('too many rows found');
+WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('An Error occured : '||SQLERRM);
+	DBMS_OUTPUT.PUT_LINE('Error Code:'||SQLCODE);
+END;             /* too many rows found */
+   
+
+
+-- Example for divisible by zero error
+
+DECLARE
+    v_earnings NUMBER(7,2) := 87554;
+    v_price NUMBER:=  0;
+	v_res NUMBER ;
+BEGIN 
+    v_res := v_earnings/v_price;
+	DBMS_OUTPUT.PUT_LINE('Result:'||v_res);
+EXCEPTION
+    WHEN OTHERS THEN
+       DBMS_OUTPUT.PUT_LINE('An Error occured : '||SQLERRM);
+	    DBMS_OUTPUT.PUT_LINE('Error Code:'||SQLCODE);
+END;
+/*
+Statement processed.
+An Error occured : ORA-01476: divisor is equal to zero
+Error Code:-1476*/
+
+DECLARE
+    v_earnings NUMBER(7,2) := 87554;
+    v_price NUMBER:=  0;
+	v_res NUMBER ;
+BEGIN 
+    v_res := v_earnings/v_price;
+	DBMS_OUTPUT.PUT_LINE('Result:'||v_res);
+EXCEPTION
+    WHEN ZERO_DIVIDE THEN
+    DBMS_OUTPUT.PUT_LINE(q'[you can't divide the number by zero]');
+    WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('An Error occured : '||SQLERRM);
+	DBMS_OUTPUT.PUT_LINE('Error Code:'||SQLCODE);
+END;
+
+-- Non pre defined oracle server error
+/*here  we need to declare the  exception in a declare section, oracle server will raise the error implicitly and 
+you can catch for the error in the exception exception  handler */
+ /* here we used pragma_init
+PRAGMA EXCEPTION_INIT(exception_name, -error_number);
+Exception name we give it as user deifined name , that user defined name will be passed to the compiler */
+
+-- Example for divisible by zero error in pragma_init
+
+DECLARE
+    v_earnings NUMBER(7,2) := 87554;
+    v_price NUMBER:=  0;
+	v_res NUMBER ;
+    zero_divsion_error EXCEPTION;
+	PRAGMA EXCEPTION_INIT(zero_divsion_error,-01476);
+BEGIN
+    IF v_earnings!=0 THEN
+     v_res := v_earnings/v_price;
+	DBMS_OUTPUT.PUT_LINE('Result:'||v_res);
+	ELSE
+        RAISE zero_divsion_error;
+	END IF;
+EXCEPTION
+    WHEN zero_divsion_error THEN
+    DBMS_OUTPUT.PUT_LINE('number is not divisble by zero');
+	WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('An Error occured!'||SQLERRM);
+    DBMS_OUTPUT.PUT_LINE('Error code:'||SQLCODE);
+END;
+
+/* 
+Statement processed.
+number is not divisble by zero */
+
+
+-- user defined exception using RAISE statement or the RAISE_APPLICATION_ERROR procedure.
+
+DECLARE
+    v_empno EMP.EMPNO%TYPE;
+	v_name EMP.ENAME%TYPE;
+    v_deptno EMP.DEPTNO%TYPE := 50;
+	v_dname DEPT.DNAME%TYPE;
+    no_dept EXCEPTION;
+BEGIN
+    SELECT E1.EMPNO,E1.ENAME,E1.DEPTNO,D1.DNAME
+    INTO v_empno,v_name,v_deptno,v_dname
+    FROM EMP E1 INNER JOIN DEPT D1
+    ON E1.DEPTNO  = D1.DEPTNO
+    WHERE D1.DEPTNO = v_deptno;
+IF SQL%NOTFOUND THEN
+    RAISE no_dept;
+END IF;
+EXCEPTION
+    WHEN no_dept THEN
+    DBMS_OUTPUT.PUT_LINE('deptarment not found, please trt again');
+END;
+
+/*
+ORA-01403: no data found ORA-06512: at line 8
+ORA-06512: at "SYS.DBMS_SQL", line 1721
+*/
+
+
+DECLARE
+v_deptno NUMBER := 500;
+v_name VARCHAR2(20) ;
+e_invalid_dept EXCEPTION;
+BEGIN
+SELECT DNAME INTO v_name
+FROM DEPT
+WHERE DEPTNO = v_deptno;
+IF SQL%NOTFOUND THEN
+RAISE e_invalid_dept;
+END IF;
+EXCEPTION
+ WHEN e_invalid_dept THEN
+DBMS_OUTPUT.PUT_LINE ('No such department');
+END;
+
+/*
+ORA-01403: no data found ORA-06512: at line 6
+ORA-06512: at "SYS.DBMS_SQL", line 1721
+*/
+
+
+Note:
+-----
+/* If we are trying to create an user defined exception for Data retrival 
+it was throw an default oracle error messge. not displaying user defined exception* message */
+
+-- User defined exception with DML operations
+
+DECLARE
+    v_deptno EMP.DEPTNO%TYPE := 50;
+	v_dname DEPT.DNAME%TYPE;
+    no_dept EXCEPTION;
+BEGIN
+    v_dname := 'TECHNOLOGY';
+	UPDATE DEPT SET DNAME  = v_dname
+    WHERE DEPTNO = v_deptno;
+IF SQL%NOTFOUND THEN
+    RAISE no_dept;
+END IF;
+EXCEPTION
+    WHEN no_dept THEN
+    DBMS_OUTPUT.PUT_LINE('deptarment not found, please trt again');
+END;
+
+/*
+Statement processed.
+deptarment not found, please trt again
+*/
+
+DECLARE
+v_deptno NUMBER := 1000;
+e_invalid_dept EXCEPTION;
+BEGIN
+DELETE 
+FROM DEPT
+WHERE DEPTNO = v_deptno;
+IF SQL%NOTFOUND THEN
+RAISE e_invalid_dept;
+END IF;
+EXCEPTION
+ WHEN e_invalid_dept THEN
+DBMS_OUTPUT.PUT_LINE ('No such department');
+END;
+/*
+Statement processed.
+No such department
+*/
+
+-- Example for RAISE_APPLICATION_ERROR
+
+DECLARE
+    v_sal EMP.SAL%TYPE;
+	v_job EMP.JOB%TYPE;
+    v_name EMP.ENAME%TYPE := 'KESAV';
+BEGIN<<raise_application_error_ex>>
+    SELECT JOB,SAL
+    INTO v_job,v_sal
+    FROM EMP
+    WHERE ENAME = v_name;
+IF SQL%NOTFOUND THEN
+    RAISE_APPLICATION_ERROR('No records found',-20458);
+ELSE
+    DBMS_OUTPUT.PUT_LINE('JOB:'||v_job);
+	DBMS_OUTPUT.PUT_LINE('SAL:'||v_sal);
+END IF;
+EXCEPTION
+    WHEN OTHERS THEN
+     DBMS_OUTPUT.PUT_LINE('An Error occured!'||SQLERRM);
+    DBMS_OUTPUT.PUT_LINE('Error code:'||SQLCODE);
+END raise_application_error_ex;
+
+/*
+Statement processed.
+An Error occured!ORA-01403: no data found
+Error code:100
+/*

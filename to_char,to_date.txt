@@ -1,0 +1,85 @@
+SELECT * FROM HR.EMPLOYEES;
+
+SELECT * FROM HR.LOCATIONS;
+
+CREATE TABLE EMP AS SELECT * FROM SCOTT.EMP;
+
+DECLARE
+    v_hiredate	EMP.HIREDATE%TYPE;
+	v_str NVARCHAR2(60):= NULL;
+BEGIN<<to_charex>>
+    SELECT HIREDATE 
+    INTO v_hiredate
+    FROM EMP
+    WHERE EMPNO = '7900';
+    v_str := TO_CHAR(v_hiredate);
+	DBMS_OUTPUT.PUT_LINE(v_str,'RN');
+END to_charex;
+
+
+DECLARE
+    my_date DATE := SYSDATE;
+    date_str VARCHAR2(50);
+BEGIN
+    date_str := TO_CHAR(my_date, 'DD-MON-YYYY HH24:MI:SS');
+    DBMS_OUTPUT.PUT_LINE(date_str); -- Output: 07-AUG-2023 15:30:45
+END;
+
+DECLARE
+    my_number NUMBER := 1984;
+    roman_str VARCHAR2(50);
+BEGIN
+    roman_str := TO_CHAR(my_number, 'RN');
+    DBMS_OUTPUT.PUT_LINE(roman_str); -- Output: MCMLXXXIV
+END;	
+
+
+-- TO NUMBER
+
+DECLARE
+    v_str NVARCHAR2(50);
+	v_num NUMBER:=0;
+BEGIN
+    v_str := '25639';
+    v_num := TO_NUMBER(v_str);
+	DBMS_OUTPUT.PUT_LINE(v_num);
+END;
+
+
+DECLARE
+    v_str VARCHAR2(30);
+	v_mynum NUMBER;
+    BEGIN
+        v_str := 'sd';
+		v_mynum := TO_NUMBER(v_str);
+		DBMS_OUTPUT.PUT_LINE('Converted value : '||' '||v_mynum);
+    END;
+
+
+DECLARE
+    num_str VARCHAR2(50) := '12345.67';
+    my_number NUMBER;
+BEGIN
+    my_number := TO_NUMBER(num_str);
+    DBMS_OUTPUT.PUT_LINE('Converted Number: ' || my_number);
+END;
+
+
+-- TO DATE
+
+DECLARE
+    v_hiredate NVARCHAR2(50) := '2000-02-25';
+	v_date DATE;
+BEGIN<<to_date>>
+    v_date := TO_DATE(v_hiredate,'YYYY-MM-DD');
+	DBMS_OUTPUT.PUT_LINE(v_date);
+END to_date;
+
+DECLARE
+    date_str VARCHAR2(50) := '2023-08-07';
+    my_date DATE;
+BEGIN
+    my_date := TO_DATE(date_str, 'YYYY-MM-DD');
+    DBMS_OUTPUT.PUT_LINE('Converted Date: ' || TO_CHAR(my_date, 'DD-MON-YYYY')); 
+END;
+

@@ -1,0 +1,57 @@
+Row-level locking in Oracle PL/SQL refers to the ability to control the locking behavior at the individual row level within a database table. This means that you can lock specific rows for exclusive access by a particular transaction, allowing multiple transactions to work on different rows of the same table simultaneously without blocking each other.
+
+CREATE TABLE orders (
+    order_id NUMBER PRIMARY KEY,
+    customer_id NUMBER,
+    order_date DATE,
+    order_total NUMBER
+);
+
+DECLARE
+    v_order_id NUMBER := 1001; -- The order ID to update
+    v_new_total NUMBER := 500.00; -- The new order total
+
+    /* Define a cursor to select the row to be updated */
+    CURSOR order_cursor IS
+        SELECT order_total
+        FROM orders
+        WHERE order_id = v_order_id
+        FOR UPDATE; -- Apply row-level lock
+
+BEGIN
+    -- Open the cursor
+    OPEN order_cursor;
+
+    -- Fetch the row and apply the update
+    FETCH order_cursor INTO v_new_total;
+    
+    IF order_cursor%FOUND THEN
+        -- Update the order total
+        UPDATE orders
+        SET order_total = v_new_total
+        WHERE CURRENT OF order_cursor;
+
+        COMMIT;
+        DBMS_OUTPUT.PUT_LINE('Order total updated successfully.');
+    ELSE
+        DBMS_OUTPUT.PUT_LINE('Order not found.');
+    END IF;
+
+    -- Close the cursor
+    CLOSE order_cursor;
+EXCEPTION
+    WHEN OTHERS THEN
+        -- Handle exceptions here
+        DBMS_OUTPUT.PUT_LINE('An error occurred: ' || SQLERRM);
+        ROLLBACK;
+END;
+/
+
+-----------------------------------------------------------------------------------------------------------------------------------------
+
+Table level locking
+----------------------
+
+
+
+

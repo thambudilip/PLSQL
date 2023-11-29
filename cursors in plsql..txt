@@ -1,0 +1,354 @@
+CREATE TABLE EMPLOYEES AS SELECT * FROM HR.EMPLOYEES;
+CREATE TABLE EMP AS SELECT * FROM SCOTT.EMP;
+
+SELECT * FROM HR.EMPLOYEES;
+
+-- BASIC EXAMPLES OF CURSOR
+
+DECLARE
+CURSOR C1 IS SELECT * FROM EMP WHERE SAL>=2000;
+v_emprec EMP%ROWTYPE;
+BEGIN
+OPEN C1;
+FETCH C1 INTO v_emprec;
+DBMS_OUTPUT.PUT_LINE('NAME'||v_emprec.ENAME);
+CLOSE C1;    
+END;
+
+-- DISPLAY EMPLOYEES NAME AND SAL,DEPTNO,JOB OF EMPID = 7900 USING %TYPE
+
+DECLARE
+    CURSOR emp_cur IS SELECT ENAME,SAL,DEPTNO,JOB 
+    FROM EMP
+    WHERE EMPNO = 7900;
+	--v_empno EMP.EMPNO%TYPE := 7900;
+	v_name EMP.ENAME%TYPE;
+	v_sal EMP.SAL%TYPE;
+    v_deptno EMP.DEPTNO%TYPE;
+    v_job EMP.JOB%TYPE;
+BEGIN
+    OPEN emp_cur;
+FETCH emp_cur INTO v_name,v_sal,v_deptno,v_job;
+DBMS_OUTPUT.PUT_LINE('NAME :'||' '||v_name);
+DBMS_OUTPUT.PUT_LINE('SAL :'||' '||v_sal);
+DBMS_OUTPUT.PUT_LINE('DEPTNO :'||' '||v_deptno);
+DBMS_OUTPUT.PUT_LINE('JOB :'||' '||v_job);
+	CLOSE emp_cur;
+END;
+
+
+
+-- DISPLAY EMPLOYEES NAME AND SAL,DEPTNO,JOB OF EMPID = 7900 USING %ROWTYPE
+	
+
+-- Display the name and sal of all the employees who are working in deptno 10
+
+DECLARE
+    CURSOR emp_cur IS SELECT * FROM EMP
+    WHERE DEPTNO = 10;
+	v_emprec EMP%ROWTYPE;
+BEGIN
+OPEN emp_cur;
+LOOP 
+FETCH emp_cur INTO v_emprec;
+EXIT WHEN emp_cur%NOTFOUND;
+DBMS_OUTPUT.PUT_LINE('NAME:'||' '||v_emprec.ENAME);
+DBMS_OUTPUT.PUT_LINE('SAL:'||' '||v_emprec.SAL);
+DBMS_OUTPUT.PUT_LINE('JOB:'||' '||v_emprec.JOB);
+DBMS_OUTPUT.PUT_LINE('HIREDATE:'||' '||v_emprec.HIREDATE);
+DBMS_OUTPUT.PUT_LINE('DEPTNO:'||' '||v_emprec.DEPTNO);
+END LOOP;
+CLOSE emp_cur;
+END;
+
+-- CURSOR FOR LOOP
+-- We are wrting for loop a cursor program only declaration is required.Open,Fetch and close is not required.
+
+--DISPLAY ALL THE DETAILS OF EMPLOYEES WHO ARE WORKING THE DEPARTMENT 10 AND 20 AND WHOSE SALARY IS GREATER THAN 2000
+
+--NOTE
+/* USE THE FOR LOOP VARIABLENAME AND %ROWTYPE VARNAME BOTH ARE SAME */
+DECLARE
+	CURSOR emp_cur IS SELECT * 
+    FROM EMP 
+    WHERE DEPTNO IN (10,20) AND SALARY>2000;
+v_emprecord EMP%ROWTYPE;
+BEGIN
+    FOR v_emprecord IN emp_cur
+    LOOP
+	DBMS_OUTPUT.PUT_LINE('NAME:'||' '||v_emprecord.ENAME);
+	DBMS_OUTPUT.PUT_LINE('NAME:'||' '||v_emprecord.SAL);
+	DBMS_OUTPUT.PUT_LINE('NAME:'||' '||v_emprecord.JOB);
+	DBMS_OUTPUT.PUT_LINE('NAME:'||' '||v_emprecord.DEPTNO);
+    END LOOP;
+END;
+
+
+
+
+DECLARE
+    CURSOR emp_cur IS SELECT ENAME FROM EMP WHERE SAL>1000 AND ENAME LIKE 'A%';
+BEGIN
+    FOR emp_record IN emp_cur
+    LOOP
+    DBMS_OUTPUT.PUT_LINE('ENAME'||'  '||emp_record.ENAME);
+    END LOOP;
+END;
+
+
+DECLARE
+    CURSOR emp_cur IS SELECT ENAME FROM EMP WHERE DEPTNO = 20;
+BEGIN
+    FOR emp_record IN emp_cur
+    LOOP
+    DBMS_OUTPUT.PUT_LINE('ENAME'||'  '||emp_record.ENAME);
+	EXIT WHEN emp_cur%ROWCOUNT>2;
+    END LOOP;
+END;
+
+DECLARE
+    CURSOR emp_rec IS SELECT * FROM EMP WHERE SAL>2500 AND SAL<3500;
+BEGIN
+    OPEN emp_rec ;
+	
+	CLOSE emp_rec;
+END;
+
+-------------------------------------------------------------------------------------------------------------------
+
+CREATE TABLE EMP AS SELECT * FROM SCOTT.EMP;
+
+
+DECLARE
+    v_name EMP.ENAME%TYPE;
+    CURSOR emp_cur IS SELECT ENAME FROM EMP WHERE EMPNO = 7876;
+	--v_emprec EMP%ROWTYPE;
+BEGIN    
+    OPEN emp_cur;
+	--FETCH emp_cur  INTO v_emprec;
+	FETCH emp_cur  INTO v_name;
+	DBMS_OUTPUT.PUT_LINE('NAME:'||v_name);
+   -- DBMS_OUTPUT.PUT_LINE('NAME:'||v_emprec.ENAME);
+	CLOSE emp_cur;
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+    DBMS_OUTPUT.PUT_LINE('No data found...');	
+    WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('An error occured...');
+END;
+---------------------------------------------------------------------------------------------
+
+DECLARE
+    CURSOR emp_cur IS SELECT * FROM EMP
+    WHERE EMPNO = 7900;
+	v_emprec EMP%ROWTYPE;
+BEGIN    
+    OPEN emp_cur;
+	FETCH emp_cur  INTO v_emprec;
+	DBMS_OUTPUT.PUT_LINE('NAME:'||v_emprec.ENAME);
+	CLOSE emp_cur;
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+    DBMS_OUTPUT.PUT_LINE('No data found...');	
+    WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('An error occured...');
+END;
+-----------------------------------------------------------------------------------------------------------
+DECLARE
+	v_name EMP.ENAME%TYPE;
+	CURSOR employee_cur IS SELECT ENAME FROM EMP WHERE  SAL = 1300;
+BEGIN
+    OPEN employee_cur;
+FETCH employee_cur INTO v_name;
+	CLOSE employee_cur;
+    DBMS_OUTPUT.PUT_LINE('NAME:'||v_name);	
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+    DBMS_OUTPUT.PUT_LINE('No data found...');	
+    WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('An error occured...');
+END;
+---------------------------------------------------------------------------------------------
+
+DECLARE
+    CURSOR C1 IS SELECT * FROM EMP
+    WHERE EMPNO = 7900;
+	v_emprec EMP%ROWTYPE;
+BEGIN
+OPEN C1;
+FETCH C1 INTO v_emprec;
+DBMS_OUTPUT.PUT_LINE('NAME :'||' '||v_emprec.ENAME);
+DBMS_OUTPUT.PUT_LINE('SAL :'||' '||v_emprec.SAL);
+DBMS_OUTPUT.PUT_LINE('DEPTNO :'||' '||v_emprec.DEPTNO);
+DBMS_OUTPUT.PUT_LINE('JOB :'||' '||v_emprec.JOB);
+CLOSE C1;
+END;
+---------------------------------------------------------------------------------------------------
+
+-- fetch all the details of employees who are working under dept no 30 USING %TYPE.
+
+DECLARE
+    v_name EMP.ENAME%TYPE;
+	v_sal EMP.SAL%TYPE;
+	v_job EMP.JOB%TYPE;
+	v_deptno EMP.DEPTNO%TYPE;
+	CURSOR empcur IS SELECT ENAME,SAL,JOB,DEPTNO FROM EMP WHERE DEPTNO = 30 
+    ORDER BY ENAME;
+BEGIN
+    OPEN empcur;
+	LOOP
+    FETCH empcur INTO v_name,v_sal,v_job,v_deptno;
+	EXIT WHEN empcur%NOTFOUND;
+    DBMS_OUTPUT.PUT_LINE('NAME:'||' '||v_name);
+    DBMS_OUTPUT.PUT_LINE('SAL:'||' '||v_sal);
+    DBMS_OUTPUT.PUT_LINE('JOB:'||' '||v_job);
+    DBMS_OUTPUT.PUT_LINE('DEPTNO:'||' '||v_deptno);
+	END LOOP;
+	CLOSE empcur;
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+    DBMS_OUTPUT.PUT_LINE('No data found...');	
+    WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('An error occured...'||SQLERRM);
+END;
+---------------------------------------------------------------
+-- fetch all the details of employees who are working under dept no 30 USING %ROWTYPE.
+
+DECLARE
+    v_emprec EMP%ROWTYPE;
+	CURSOR empcur IS SELECT * FROM EMP WHERE DEPTNO = 30 
+    ORDER BY ENAME;
+BEGIN
+    OPEN empcur;
+	LOOP
+    FETCH empcur INTO v_emprec;
+	EXIT WHEN empcur%NOTFOUND;
+    DBMS_OUTPUT.PUT_LINE('NAME:'||' '||v_emprec.ENAME);
+    DBMS_OUTPUT.PUT_LINE('SAL:'||' '||v_emprec.SAL);
+    DBMS_OUTPUT.PUT_LINE('JOB:'||' '||v_emprec.JOB);
+    DBMS_OUTPUT.PUT_LINE('DEPTNO:'||' '||v_emprec.DEPTNO);
+	END LOOP;
+	CLOSE empcur;
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+    DBMS_OUTPUT.PUT_LINE('No data found...');	
+    WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('An error occured...'||SQLERRM);
+END;
+--------------------------------------------------------------------------------------------------------------------------------
+
+-- WRITE A PL/SQL PROGRAM FOR DISPLAYINF EMPNAME,SAL,JOB,DEPTNO,DNAME,LOC OF EMPLOYEENO = 7900
+
+DECLARE
+    v_empno EMP.EMPNO%TYPE;
+    v_name EMP.ENAME%TYPE;
+    v_sal EMP.SAL%TYPE;
+    v_job EMP.JOB%TYPE;
+    v_deptno EMP.DEPTNO%TYPE;
+    v_dname DEPT.DNAME%TYPE;
+    v_loc  DEPT.LOC%TYPE;
+	CURSOR empdet_cur IS SELECT E1.EMPNO,E1.ENAME,E1.SAL,E1.JOB,E1.DEPTNO,D1.DNAME,D1.LOC
+    FROM EMP E1
+    JOIN DEPT D1
+    ON E1.DEPTNO = D1.DEPTNO
+    WHERE EMPNO = 7900;
+BEGIN
+    OPEN empdet_cur;
+	FETCH empdet_cur INTO v_empno,v_name,v_sal,v_job,v_deptno,v_dname,v_loc;
+    IF empdet_cur%FOUND 
+    THEN
+	DBMS_OUTPUT.PUT_LINE('EMPNO:'||' '||v_empno);
+	DBMS_OUTPUT.PUT_LINE('NAME:'||' '||v_name);
+	DBMS_OUTPUT.PUT_LINE('SAL:'||' '||v_sal);
+	DBMS_OUTPUT.PUT_LINE('JOB :'||' '||v_job);
+	DBMS_OUTPUT.PUT_LINE('DEPTNO:'||' '||v_deptno);
+	DBMS_OUTPUT.PUT_LINE('DNAME:'||' '||v_dname);
+	DBMS_OUTPUT.PUT_LINE('LOC:'||' '||v_loc);
+END IF;
+	CLOSE empdet_cur;
+EXCEPTION
+WHEN NO_DATA_FOUND THEN
+DBMS_OUTPUT.PUT_LINE('No data found...');
+WHEN OTHERS THEN
+DBMS_OUTPUT.PUT_LINE('An Error occured ...'||SQLERRM);
+END;
+
+
+--------------------------------------------------------------------------------------------------------------------------------------------
+-- WRITE A PL/SQL PROGRAM FOR DISPLAYINF EMPNAME,SAL,JOB,DEPTNO,DNAME,LOC OF EMPLOYEES WHO ARE HIRED AFTER 22-FEB-81 
+
+DROP CURSOR  empdet_cur;
+
+DECLARE
+    v_empno EMP.EMPNO%TYPE;
+    v_name EMP.ENAME%TYPE;
+    v_sal EMP.SAL%TYPE;
+    v_job EMP.JOB%TYPE;
+    v_deptno EMP.DEPTNO%TYPE;
+    v_dname DEPT.DNAME%TYPE;
+    v_loc  DEPT.LOC%TYPE;
+	v_hiredate EMP.HIREDATE%TYPE;
+	CURSOR empdet_cur IS SELECT E1.EMPNO,E1.ENAME,E1.SAL,E1.JOB,E1.HIREDATE,E1.DEPTNO,D1.DNAME,D1.LOC
+    FROM EMP E1
+    JOIN DEPT D1
+    ON E1.DEPTNO = D1.DEPTNO
+    WHERE E1.HIREDATE > '22-FEB-81 ' ;
+BEGIN
+    OPEN empdet_cur;
+	FOR emp_rec IN empdet_cur
+    LOOP
+	DBMS_OUTPUT.PUT_LINE('EMPNO:'||' '||emp_rec.EMPNO);
+	DBMS_OUTPUT.PUT_LINE('NAME:'||' '||emp_rec.ENAME);
+	DBMS_OUTPUT.PUT_LINE('SAL:'||' '||emp_rec.SAL);
+	DBMS_OUTPUT.PUT_LINE('JOB :'||' '||emp_rec.JOB);
+	DBMS_OUTPUT.PUT_LINE('DEPTNO:'||' '||emp_rec.DEPTNO);
+	DBMS_OUTPUT.PUT_LINE('DNAME:'||' '||emp_rec.DNAME);
+	DBMS_OUTPUT.PUT_LINE('LOC:'||' '||emp_rec.LOC);
+END  LOOP;
+	CLOSE empdet_cur;
+EXCEPTION
+WHEN NO_DATA_FOUND THEN
+DBMS_OUTPUT.PUT_LINE('No data found...');
+WHEN OTHERS THEN
+DBMS_OUTPUT.PUT_LINE('An Error occured ...'||SQLERRM);
+END;
+
+/* Statement processed.
+An Error occured ...ORA-06511: PL/SQL: cursor already open */
+
+
+---------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

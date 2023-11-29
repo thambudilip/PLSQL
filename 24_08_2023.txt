@@ -1,0 +1,51 @@
+CREATE TABLE EMP AS SELECT * FROM SCOTT.EMP;
+
+DECLARE
+CURSOR c1(v_deptid number) IS SELECT ENAME,SAL
+FROM EMP
+WHERE DEPTNO = v_deptid;
+BEGIN
+    FOR emp_rec IN c1(10)
+    LOOP   
+	DBMS_OUTPUT.PUT_LINE('ENAME'||emp_rec.ENAME);
+    END LOOP;
+END;
+
+
+DECLARE
+    CURSOR c1 IS
+        SELECT ENAME, SAL
+        FROM EMP
+        WHERE EMPNO = 7900;
+BEGIN
+    FETCH c1 INTO 
+    FOR emp_rec IN c1
+    LOOP
+        DBMS_OUTPUT.PUT_LINE('ENAME: ' || emp_rec.ENAME || ', SAL: ' || emp_rec.SAL);
+    END LOOP;
+END;
+
+DECLARE
+    v_empno NUMBER := 7839;
+	v_name EMP.ENAME%TYPE;
+CURSOR c IS SELECT ENAME
+FROM EMP
+WHERE EMPNO = v_empno;
+BEGIN
+    OPEN c;
+	    FETCH c INTO v_name;
+    DBMS_OUTPUT.PUT_LINE('EMPLOYEE NAME'||v_name);
+	CLOSE c;
+END;
+
+DECLARE
+cursor c_emp_cursor (deptno NUMBER)  IS
+SELECT EMPLOYEE_ID,LAST_NAME
+FROM HR.EMPLOYEES
+WHERE department_id  = deptno;
+BEGIN
+open c_emp_cursor(10);
+DBMS_OUTPUT.PUT_LINE('ENAME:')
+close c_emp_cursor;
+END;
+

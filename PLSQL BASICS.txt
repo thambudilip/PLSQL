@@ -1,0 +1,196 @@
+-- PL/SQL
+
+SELECT * FROM HR.EMPLOYEES;
+--NOT WORK
+DECLARE 
+v_firstname VARCHAR2(50) :=NOT NULL ;
+v_lastname VARCHAR2(50) :=NOT NULL ;
+v_sal 	NUMBER(10,2) :=0 ;
+v_comm  NUMBER(10,2) :=0 ;
+v_total_sal NUMBER(10,2) :=0 ;
+BEGIN
+SELECT FIRST_NAME,LAST_NAME,SALARY,COMMISSION_PCT,NVL(SALARY+COMMISSION_PCT,0) INTO 
+    		v_firstname,v_lastname,v_sal,v_comm,v_total_sal
+FROM HR.EMPLOYEES
+WHERE EMPLOYEE_ID = 100;
+DBMS_OUTPUT.PUT_LINE('NAME'||v_firstname);
+END;
+
+-- WORK
+DECLARE 
+v_firstname VARCHAR2(50) ;
+v_lastname VARCHAR2(50) ;
+v_sal 	NUMBER(10,2)  ;
+v_comm  NUMBER(10,2) ;
+v_total_sal NUMBER(10,2) ;
+BEGIN
+SELECT FIRST_NAME,LAST_NAME,SALARY,COMMISSION_PCT,NVL(SALARY+COMMISSION_PCT,0)  INTO 
+    		v_firstname,v_lastname,v_sal,v_comm,v_total_sal
+FROM HR.EMPLOYEES
+WHERE EMPLOYEE_ID = 100;
+DBMS_OUTPUT.PUT_LINE('FIRST NAME'|| v_firstname);
+DBMS_OUTPUT.PUT_LINE('LAST NAME'|| v_lastname);
+DBMS_OUTPUT.PUT_LINE('SALARY' || v_sal);
+DBMS_OUTPUT.PUT_LINE('COMM' || v_comm);
+DBMS_OUTPUT.PUT_LINE('TOTAL SALARY' || v_total_sal);
+END;
+
+
+--ERROR
+DECLARE
+v_name varchar2(20);
+BEGIN
+SELECT FIRST_NAME INTO v_name
+FROM HR.EMPLOYEES
+WHERE  FIRST_NAME = 'Alexander';
+DBMS_OUTPUT.PUT_LINE('NAME :'||v_name);
+END;
+
+--WORK
+DECLARE
+v_name varchar2(20); 
+BEGIN
+SELECT FIRST_NAME INTO v_name 
+FROM HR.employees WHERE employee_id = 100;
+DBMS_OUTPUT.PUT_LINE('Employee Name: ' || v_name);
+END;
+
+
+--WORK
+DECLARE
+v_name varchar2(20); 
+BEGIN
+SELECT FIRST_NAME INTO v_name 
+FROM HR.employees WHERE EMAIL = 'NKOCHHAR';
+DBMS_OUTPUT.PUT_LINE('Employee Name: ' || v_name);
+END;
+
+--ERROR
+DECLARE
+v_name varchar2(20); 
+BEGIN
+SELECT FIRST_NAME INTO v_name 
+FROM HR.employees WHERE DEPARTMENT_ID = 100;
+DBMS_OUTPUT.PUT_LINE('Employee Name: ' || v_name);
+END;
+
+
+-- WORK
+DECLARE
+v_name varchar2(20); 
+BEGIN
+SELECT FIRST_NAME INTO v_name 
+FROM HR.employees WHERE PHONE_NUMBER = '515.123.4568';
+DBMS_OUTPUT.PUT_LINE('Employee Name: ' || v_name);
+END;
+
+-- NOT WORK
+DECLARE
+v_name varchar2(20); 
+BEGIN
+SELECT FIRST_NAME INTO v_name 
+FROM HR.employees WHERE EMPLOYEE_ID > 100;
+DBMS_OUTPUT.PUT_LINE('Employee Name: ' || v_name);
+END;
+
+SELECT * FROM HR.EMPLOYEES;
+
+--ERROR
+DECLARE
+v_name varchar2(20);
+BEGIN
+SELECT FIRST_NAME INTO v_name
+FROM HR.EMPLOYEES
+WHERE  FIRST_NAME = 'Alexander';
+DBMS_OUTPUT.PUT_LINE('NAME :'||v_name);
+END;
+
+--WORK
+DECLARE
+v_name varchar2(20); 
+BEGIN
+SELECT FIRST_NAME INTO v_name 
+FROM HR.employees WHERE employee_id = 100;
+DBMS_OUTPUT.PUT_LINE('Employee Name: ' || v_name);
+END;
+
+
+--WORK
+DECLARE
+v_name varchar2(20); 
+BEGIN
+SELECT FIRST_NAME INTO v_name 
+FROM HR.employees WHERE EMAIL = 'NKOCHHAR';
+DBMS_OUTPUT.PUT_LINE('Employee Name: ' || v_name);
+END;
+
+--ERROR
+DECLARE
+v_name varchar2(20); 
+BEGIN
+SELECT FIRST_NAME INTO v_name 
+FROM HR.employees WHERE DEPARTMENT_ID = 100;
+DBMS_OUTPUT.PUT_LINE('Employee Name: ' || v_name);
+END;
+
+
+-- WORK
+DECLARE
+v_name varchar2(20); 
+BEGIN
+SELECT FIRST_NAME INTO v_name 
+FROM HR.employees WHERE PHONE_NUMBER = '515.123.4568';
+DBMS_OUTPUT.PUT_LINE('Employee Name: ' || v_name);
+END;
+
+
+DECLARE
+v_name varchar2(20); 
+BEGIN
+SELECT FIRST_NAME INTO v_name 
+FROM HR.employees WHERE EMPLOYEE_ID > 100;
+DBMS_OUTPUT.PUT_LINE('Employee Name: ' || v_name);
+END;
+
+SELECT * FROM HR.EMPLOYEES;
+
+-- WORK
+DECLARE 
+v_firstname VARCHAR2(50) ;
+v_lastname VARCHAR2(50) ;
+v_sal 	NUMBER(10,2)  ;
+v_comm  NUMBER(10,2) ;
+v_total_sal NUMBER(10,2) ;
+BEGIN
+SELECT FIRST_NAME,LAST_NAME,SALARY,COMMISSION_PCT,NVL(SALARY+COMMISSION_PCT,0) AS "TOAL SAL" INTO 
+    		v_firstname,v_lastname,v_sal,v_comm,v_total_sal
+FROM HR.EMPLOYEES
+WHERE EMPLOYEE_ID = 100;
+DBMS_OUTPUT.PUT_LINE('FIRST NAME'|| v_firstname);
+DBMS_OUTPUT.PUT_LINE('LAST NAME'|| v_lastname);
+DBMS_OUTPUT.PUT_LINE('SALARY' || v_sal);
+DBMS_OUTPUT.PUT_LINE('COMM' || v_comm);
+DBMS_OUTPUT.PUT_LINE('TOTAL SALARY' || v_total_sal);
+END;
+
+
+-- WORK
+DECLARE
+v_name varchar2(20) := NULL ; 
+v_sal NUMBER(10,2):=0.0 ;
+v_comm NUMBER(10,2):= 0.0;
+v_tot_sal NUMBER(10,2) :=0.0 ;
+BEGIN
+SELECT FIRST_NAME,SALARY,COMMISSION_PCT,NVL(SALARY+COMMISSION_PCT,0) AS "TOT SAL" INTO v_name,v_sal,v_comm,v_tot_sal 
+FROM HR.employees WHERE EMPLOYEE_ID=100;
+DBMS_OUTPUT.PUT_LINE('EMPLOYEE NAME : ' || v_name);
+DBMS_OUTPUT.PUT_LINE('SALARAY :' || v_sal);
+DBMS_OUTPUT.PUT_LINE('COMMISSION : ' || v_comm);
+DBMS_OUTPUT.PUT_LINE('TOTAL SALARY : ' || v_tot_sal);
+END;
+
+
+
+
+
+

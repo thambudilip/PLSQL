@@ -1,0 +1,403 @@
+CURSOR:
+-----------
+
+Use a CURSOR when you want to fetch and manipulate data within a specific PL/SQL block. This is typically used for queries with known structures where you want to process the result set within the same PL/SQL block where you declare the cursor.
+
+You declare and use a CURSOR directly in your PL/SQL code. It's useful when you have a predefined query structure and want to perform operations on the fetched data within your code block.
+
+SYS_REFCURSOR:
+------------------------
+Use a SYS_REFCURSOR when you want to return a result set from a function or pass it between different parts of your PL/SQL code. This is valuable when you need to work with dynamic queries, return result sets from functions, or pass result sets between different procedures or functions.
+
+SYS_REFCURSOR allows you to encapsulate a result set and return it from a function or pass it as a parameter between procedures. It's more flexible and dynamic compared to a CURSOR.
+
+Ref Cursor:
+---------------
+
+The most important benifit of the cursor variable is that provides a mechasnism for passing results of queries(The rows returned by fetches agaist cursor) between differnent PL/SQL programs.
+
+ • Associate them with different queries at different times in your program execution.
+   In other words, a single cursor variable can be used to fetch from different result
+sets.
+• Pass them as an argument to a procedure or function. You can, in essence, share
+the results of a cursor by passing a reference to that result set.
+• Employ the full functionality of static PL/SQL cursors. You can OPEN, CLOSE, and
+FETCH with cursor variables within your PL/SQL programs. You can also reference
+the standard cursor attributes—%ISOPEN, %FOUND, %NOTFOUND, and
+%ROWCOUNT—for cursor variables.
+• Assign the contents of one cursor (and its result set) to another cursor variable.
+Because the cursor variable is a variable, it can be used in assignment operations.
+There are restrictions on referencing this kind of variable.
+
+Syntax:
+---------
+Type Ref_cursor_typename IS REF CURSOR  [RETURN Return Type]
+
+/* Declaration of Return type is optional */
+
+Ref  Cursor Variable syntax:
+---------------------------------
+Ref_curvariable_name  Ref_cursor_typename ;
+
+Example:-
+-----------
+ /* Considered as a Entire Dept table as % Rowtype in a Return Type*/
+DECLARE
+TYPE dept_refcur IS  REF CURSOR RETURN DEPT%ROWTYPE;
+BEGIN
+DBMS_OUTPUT.PUT_LINE('Ref cursor Example....');
+END;
+
+Example:-
+------------
+ /* Considered as a Entire Emp  table as % Rowtype and  assign the rec_type variable as % Type into a  Return Type*/
+
+DECLARE
+v_emprec EMP%ROWTYPE;
+TYPE dept_refcur IS REF CURSOR  RETURN v_emprec%type; /* Declaring ref cursor type*/
+dept_cv dept_refcur;  /* Decalre cursor variable */
+BEGIN
+    DBMS_OUTPUT.PUT_LINE('Ref cursor Example....');
+END;
+
+---------------------------------------------------------------------------------------------------------------------------
+
+Create a  user defined record and set return type as ref cursor
+-------------------------------------------------------------------------
+DECLARE
+TYPE emprec_type IS RECORD
+( 
+v_name EMP.ENAME%TYPE,
+v_sal  EMP.SAL%TYPE,
+v_dname DEPT.DNAME%TYPE
+);
+TYPE emp_curtype IS REF CURSOR RETURN emprec_type;
+emp_cv emp_curtype;
+BEGIN
+        DBMS_OUTPUT.PUT_LINE('Ref cursor Example....');
+END;
+
+----------------------------------------------------------------------------------------------------------------------------------
+
+-- Cursor Variable as a parameter
+------------------------------------------
+DECLARE
+TYPE emp_curtype  IS REF CURSOR RETURN EMP%ROWTYPE;
+PROCEDURE open_emp_cv(emp_cv IN OUT emp_curtype  )
+IS
+
+-------------------------------------------------------------------------------------------------------------
+
+Opening Cursor Variables
+--------------------------------
+You assign a value (the cursor object) to a cursor variable when you OPEN the cursor.
+So, the syntax for the traditional OPEN statement allows for cursor variables to accept
+a SELECT statement after the FOR clause, as follows:
+Syntax:
+------------
+OPEN cursor_name FOR select_statement;
+
+-------------------------------------------------------------------
+Fetching from Cursor Variables
+--------------------------------------
+As mentioned earlier, the syntax for a FETCH statement using a cursor variable is the
+same as that for static cursors:
+
+FETCH cursor_variable_name INTO record_name;
+FETCH cursor_variable_name INTO variable_name, variable_name ...;
+----------------------------------------------------------------------------------------------------------------
+/*Example for display employee name and salary of employees*/
+-----------------------------------------------------------------------------
+DECLARE
+    TYPE emp_refcur IS REF CURSOR;
+	emp_cv emp_refcur;
+	v_name VARCHAR2(15);
+    v_sal NUMBER := 1000;
+BEGIN
+    DBMS_OUTPUT.PUT_LINE('Hello ref cursor, How are you?...');
+	OPEN emp_cv FOR SELECT ENAME,SAL FROM EMP;
+	LOOP
+	FETCH emp_cv INTO v_name,v_sal;
+	DBMS_OUTPUT.PUT_LINE('Employee Name: ' || v_name || ', Salary: ' || v_sal);
+    EXIT WHEN emp_cv%NOTFOUND;
+ 	END LOOP;
+CLOSE emp_cv;
+END;
+
+/* output */
+---------------
+Statement processed.
+Hello ref cursor, How are you?...
+Employee Name: KING, Salary: 5000
+Employee Name: BLAKE, Salary: 2850
+Employee Name: CLARK, Salary: 2450
+
+-------------------------------------------------------------------------------------------------------------------------------------------
+
+	
+-- /* Example for weakly typed reference cursor for assigning variable names  */
+
+DECLARE
+    TYPE emp_refcur IS REF CURSOR;
+	emp_cv emp_refcur;
+	v_name VARCHAR2(50);
+	v_sal NUMBER(6);
+	v_dname VARCHAR2(50);
+	v_loc VARCHAR2(50);
+BEGIN
+    OPEN emp_cv FOR SELECT ENAME,SAL FROM EMP WHERE SAL >= 1500 AND ENAME LIKE '%A%';
+	LOOP
+        FETCH emp_cv INTO v_name,v_sal;
+        EXIT WHEN emp_cv%NOTFOUND;
+        DBMS_OUTPUT.PUT_LINE('NAME:'||' '||v_name||'   SALARY:'||' '||v_sal);
+    END LOOP;
+	OPEN emp_cv FOR SELECT DNAME,LOC FROM DEPT ;
+	LOOP
+     EXIT WHEN emp_cv%NOTFOUND;
+     FETCH emp_cv INTO v_dname,v_loc;
+	DBMS_OUTPUT.PUT_LINE('DNAME:'||' '||v_dname||'     LOCATION:'||v_loc);
+    END LOOP;
+END;
+
+/* output */
+
+Statement processed.
+NAME: BLAKE   SALARY: 2850
+NAME: CLARK   SALARY: 2450
+NAME: ALLEN   SALARY: 1600
+DNAME: ACCOUNTING     LOCATION:NEW YORK
+DNAME: RESEARCH     LOCATION:DALLAS
+DNAME: SALES     LOCATION:CHICAGO
+DNAME: OPERATIONS     LOCATION:BOSTON
+DNAME: OPERATIONS     LOCATION:BOSTON
+-----------------------------------------------------------------------------------------------------------------------
+-- /* Example for weakly typed reference cursor for assigning variable names and use two tables */
+
+DECLARE
+    TYPE emp_refcur IS REF CURSOR;
+	emp_cv emp_refcur;
+	v_name VARCHAR2(50);
+	 v_sal NUMBER(6);
+BEGIN
+    OPEN emp_cv FOR  SELECT ENAME,SAL FROM EMP WHERE SAL >= 1500 AND ENAME LIKE '%A%' ;
+	LOOP
+        FETCH emp_cv INTO v_name,v_sal;
+        EXIT WHEN emp_cv%NOTFOUND;
+        DBMS_OUTPUT.PUT_LINE('NAME:'||' '||v_name||'   SALARY:'||' '||v_sal);
+    END LOOP;
+	OPEN emp_cv FOR  SELECT DEPTNO,DEPTNO FROM DEPT ;
+	LOOP
+     EXIT WHEN emp_cv%NOTFOUND;
+     FETCH emp_cv INTO v_name,v_sal; /* here we assign the varname same as emp table*/ /* note : column type should be same only you can use it*/
+	DBMS_OUTPUT.PUT_LINE('DNAME:'||' '||v_name||'     LOCATION:'||v_sal); 
+    END LOOP;
+CLOSE emp_cv;  -- close the ref cursor
+END;
+
+/* output*/
+Statement processed.
+NAME: BLAKE   SALARY: 2850
+NAME: CLARK   SALARY: 2450
+NAME: ALLEN   SALARY: 1600
+DNAME: 10     LOCATION:10
+DNAME: 20     LOCATION:20
+DNAME: 30     LOCATION:30
+DNAME: 40     LOCATION:40
+DNAME: 40     LOCATION:40
+------------------------------------------------------------------------------------------------------------------------------------------------------
+-- Example for weakly typed reference cursor for assigning variable names and use two tables using '  ' in the select stmt
+
+DECLARE
+    TYPE emp_refcur IS REF CURSOR;
+	emp_cv emp_refcur;
+	v_name VARCHAR2(50);
+	 v_sal NUMBER(6);
+BEGIN
+    OPEN emp_cv FOR  'SELECT ENAME,SAL FROM EMP WHERE SAL >= 1500 ' ; /* here we used quote for select statement*/
+	LOOP
+        FETCH emp_cv INTO v_name,v_sal;
+        EXIT WHEN emp_cv%NOTFOUND;
+        DBMS_OUTPUT.PUT_LINE('NAME:'||' '||v_name||'   SALARY:'||' '||v_sal);
+    END LOOP;
+	OPEN emp_cv FOR  'SELECT DEPTNO,DEPTNO FROM DEPT' ; /* here we used quote for select statement*/
+	LOOP
+     EXIT WHEN emp_cv%NOTFOUND;
+     FETCH emp_cv INTO v_name,v_sal; /* here we assign the varname same as emp table*/ /* note : column type should be same only you can use it*/
+	DBMS_OUTPUT.PUT_LINE('DNAME:'||' '||v_name||'     LOCATION:'||v_sal); 
+    END LOOP;
+CLOSE emp_cv;  -- close the ref cursor
+END;
+
+/* output*/
+Statement processed.
+NAME: BLAKE   SALARY: 2850
+NAME: CLARK   SALARY: 2450
+NAME: ALLEN   SALARY: 1600
+DNAME: 10     LOCATION:10
+DNAME: 20     LOCATION:20
+DNAME: 30     LOCATION:30
+DNAME: 40     LOCATION:40
+DNAME: 40     LOCATION:40
+-------------------------------------------------------------------------------------------------------------------------------------------------------
+
+-- Example for weakly typed reference cursor for assigning row type variables and display the records for employee and department table
+
+DECLARE
+    TYPE emp_refcur IS REF CURSOR;
+	emp_cv emp_refcur;
+	v_emprec EMP%ROWTYPE; /* Declare the variables as table based type*/
+	v_deptrec DEPT%ROWTYPE; /* Declare the variables as table based type*/
+BEGIN
+    OPEN emp_cv FOR  'SELECT * FROM EMP ' ; /* here we used quote for select statement*/
+	LOOP
+        FETCH emp_cv INTO v_emprec;
+        EXIT WHEN emp_cv%NOTFOUND;
+        DBMS_OUTPUT.PUT_LINE('NAME:'||v_emprec.ENAME ||' '||'   SALARY:'||' '||v_emprec.SAL);
+    END LOOP;
+	OPEN emp_cv FOR  SELECT * FROM DEPT ; 
+	LOOP
+     EXIT WHEN emp_cv%NOTFOUND;
+     FETCH emp_cv INTO v_deptrec;
+	DBMS_OUTPUT.PUT_LINE('DNAME:'||' '||v_deptrec.DNAME||'     LOCATION:'||v_deptrec.LOC); 
+    END LOOP;
+CLOSE emp_cv;  -- close the ref cursor
+END;
+
+/* output*/
+
+Statement processed.
+NAME:KING    SALARY: 5000
+NAME:BLAKE    SALARY: 2850
+NAME:CLARK    SALARY: 2450
+DNAME: SALES     LOCATION:CHICAGO
+DNAME: OPERATIONS     LOCATION:BOSTON
+
+-----------------------------------------------------------------------------------------------------------------------------------------------
+
+-- Example for strongly typed reference cursor for assigning row type variables and display the records for employee and department table
+
+DECLARE
+    TYPE emp_refcur IS REF CURSOR RETURN EMP%ROWTYPE;
+	emp_cv emp_refcur;
+	v_emprec EMP%ROWTYPE; /* Declare the variables as table based type*/
+BEGIN
+    OPEN emp_cv FOR  SELECT * FROM EMP ; 
+	LOOP
+        FETCH emp_cv INTO v_emprec;
+        EXIT WHEN emp_cv%NOTFOUND;
+        DBMS_OUTPUT.PUT_LINE('NAME:'||v_emprec.ENAME ||' '||'   SALARY:'||' '||v_emprec.SAL);
+    END LOOP;
+CLOSE emp_cv;  -- close the ref cursor
+END;
+
+/* NOTE */
+
+/* If we write RETURN statement in the REF CURSOR the table must and should be that type only. it is not accepting 
+the other type of records(like normal variable,other %rowtpype).
+It will throw an Error */
+
+/* output*/
+
+
+Statement processed.
+NAME:KING    SALARY: 5000
+NAME:BLAKE    SALARY: 2850
+NAME:CLARK    SALARY: 2450
+NAME:JONES    SALARY: 2975
+NAME:SCOTT    SALARY: 3000
+NAME:FORD    SALARY: 3000
+---------------------------------------------------------------------------------------------------------------------------------------------
+
+SYS_REFCURSOR:
+---------------------------
+
+* A SYS_REFCURSOR is a predefined, system-supplied cursor type in Oracle. It's a data type used to declare cursor variables in PL/SQL. It is similar to a user-defined REF CURSOR but is provided by the system.
+
+* You can use SYS_REFCURSOR when you need a cursor variable but don't want to define a custom REF CURSOR type.
+
+Above examples just remove the cursor defintion
+
+Example:-
+-------------
+-- Example for sys ref cursor and display the result of employee table
+
+DECLARE
+    emp_refcur SYS_REFCURSOR;  /* Sys_refcursor Define*/ 
+	v_emprec EMP%ROWTYPE;    /* Declare the variables as table based type*/
+BEGIN
+    OPEN emp_refcur FOR  SELECT * FROM EMP ; 
+	LOOP
+        FETCH emp_refcur INTO v_emprec;
+        EXIT WHEN emp_refcur%NOTFOUND;
+        DBMS_OUTPUT.PUT_LINE('NAME:'||v_emprec.ENAME ||' '||'   SALARY:'||' '||v_emprec.SAL);
+    END LOOP;
+CLOSE emp_refcur;  -- close the ref cursor
+END;
+
+/* output*/
+
+Statement processed.
+NAME:KING    SALARY: 5000
+NAME:BLAKE    SALARY: 2850
+NAME:CLARK    SALARY: 2450
+NAME:JONES    SALARY: 2975
+NAME:SCOTT    SALARY: 3000
+------------------------------------------------------------------------------------------------------------------------------------
+-- To Display the name,job using ref cursor with % type using Employee Table
+
+DECLARE
+    v_emprefcur SYS_REFCURSOR;
+	v_name EMP.ENAME%TYPE;
+    v_job EMP.JOB%TYPE;
+BEGIN
+    OPEN v_emprefcur FOR SELECT ENAME,JOB FROM EMP;
+LOOP
+    FETCH v_emprefcur INTO v_name,v_job;
+	EXIT WHEN v_emprefcur%NOTFOUND; 
+    DBMS_OUTPUT.PUT_LINE('ENAME:'||v_name||'  '||'JOB:'||'  '||v_job);
+END LOOP;
+END;
+
+/* output*/
+
+Statement processed.
+ENAME:KING  JOB:  PRESIDENT
+ENAME:BLAKE  JOB:  MANAGER
+ENAME:CLARK  JOB:  MANAGER
+ENAME:JONES  JOB:  MANAGER
+
+------------------------------------------------------------------------------------------------------------------------
+-- To Display the empno,name,job,deptno,loc,dname using  sys _ref_cursor with % type and % row type using Employee Table and dept table
+--Emp details as %row type
+-- Dept details as % type
+-- Apply joins condition
+
+DECLARE
+    empdetails_refcur  SYS_REFCURSOR;
+	v_emprec EMP%ROWTYPE;
+	v_dname  DEPT.DNAME%TYPE;
+	v_loc DEPT.LOC%TYPE;
+BEGIN
+    OPEN empdetails_refcur FOR SELECT E1.EMPNO,E1.ENAME,E1.JOB,E1.DEPTNO,D1.DNAME,D1.LOC
+    FROM EMP E1
+    INNER JOIN DEPT D1
+    ON E1.DEPTNO = D1.DEPTNO 
+    WHERE D1.DEPTNO = 20;
+    LOOP
+        FETCH empdetails_refcur INTO v_emprec.EMPNO,v_emprec.ENAME,v_emprec.JOB,v_emprec.DEPTNO,v_dname,v_loc;
+		EXIT WHEN empdetails_refcur%NOTFOUND;
+		DBMS_OUTPUT.PUT_LINE('EMPNO:'||v_emprec.EMPNO||'  '||'ENAME:'||v_emprec.ENAME||'  '||'JOB:'||v_emprec.JOB||'  '||'DEPTNO:'||v_dname||'  '||'LOCATION:'||v_loc);
+    END LOOP;
+END;
+
+/* OUTPUT */
+
+
+Statement processed.
+EMPNO:7566  ENAME:JONES  JOB:MANAGER  DEPTNO:RESEARCH  LOCATION:DALLAS
+EMPNO:7788  ENAME:SCOTT  JOB:ANALYST  DEPTNO:RESEARCH  LOCATION:DALLAS
+EMPNO:7902  ENAME:FORD  JOB:ANALYST  DEPTNO:RESEARCH  LOCATION:DALLAS
+EMPNO:7369  ENAME:SMITH  JOB:CLERK  DEPTNO:RESEARCH  LOCATION:DALLAS
+EMPNO:7876  ENAME:ADAMS  JOB:CLERK  DEPTNO:RESEARCH  LOCATION:DALLAS
+
+--------------------------------------------------------------------------------------------------------------------------------------------

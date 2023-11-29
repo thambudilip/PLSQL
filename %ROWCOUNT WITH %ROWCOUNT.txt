@@ -1,0 +1,9 @@
+DECLARE
+    v_rows_affected INT;	
+	v_deptrec DEPT%ROWTYPE;
+BEGIN
+    UPDATE DEPT SET DEPTNO = 20 WHERE DEPTNO = 20 ;
+	UPDATE DEPT SET DEPTNO = 10 WHERE DEPTNO = 10 ;
+	v_rows_affected := SQL%ROWCOUNT;
+	DBMS_OUTPUT.PUT_LINE('ROWS AFFECTED'||v_rows_affected);
+END;

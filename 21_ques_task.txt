@@ -1,0 +1,139 @@
+DECLARE
+    salary NUMBER(10):= 7500;
+	bonus  NUMBER(10);
+BEGIN
+IF salary<10000
+THEN
+bonus := 20000;
+ELSE
+IF salary<20000
+THEN 
+bonus := 1500;
+ELSE
+IF salary<40000
+THEN 
+bonus := 1000;
+ELSE
+bonus := 500;
+END IF;
+END IF;
+END IF;
+DBMS_OUTPUT.PUT_LINE('SALARY: ' || salary);
+DBMS_OUTPUT.PUT_LINE('BONUS: ' || bonus);
+END;
+
+
+DECLARE
+    salary NUMBER(10):= 7500;
+	bonus  NUMBER(10);
+BEGIN
+IF salary<10000
+THEN
+bonus := 2000;
+ELSIF salary<20000
+THEN 
+bonus := 1500;
+ELSIF salary<40000
+THEN 
+bonus := 1000;
+ELSE
+bonus := 500;
+END IF;
+DBMS_OUTPUT.PUT_LINE('SALARY: ' || salary);
+DBMS_OUTPUT.PUT_LINE('BONUS: ' || bonus);
+END;
+
+CREATE TABLE EMP AS SELECT * FROM SCOTT.EMP;
+
+
+DECLARE
+    v_sal EMP.SAL%TYPE;
+	v_name EMP.ENAME%TYPE;
+	v_bonus NUMBER;
+	v_totsal NUMBER;
+BEGIN
+    SELECT ENAME,SAL 
+    INTO  v_name,v_sal
+     FROM EMP 
+    WHERE EMPNO = 7839;
+IF v_sal > 500 AND v_sal<1000
+	THEN
+    v_bonus := 100;
+ELSE
+    IF v_sal > 1000 AND v_sal<2500
+    THEN
+    v_bonus := 200;
+ELSE
+    IF v_sal >= 2500 AND v_sal<=5000
+    THEN
+    v_bonus := 500;
+END IF;
+END IF;
+END IF;
+v_totsal := v_bonus+v_sal;
+DBMS_OUTPUT.PUT_LINE('NAME : '||v_name);
+DBMS_OUTPUT.PUT_LINE('SALARY :'||v_sal);
+DBMS_OUTPUT.PUT_LINE('BONUS :'||v_bonus);
+DBMS_OUTPUT.PUT_LINE('SALARY WITH BONUS :'||v_totsal);
+END;
+
+
+DECLARE
+    v_sal EMP.SAL%TYPE;
+	v_name EMP.ENAME%TYPE;
+	v_bonus NUMBER;
+	v_totsal NUMBER;
+BEGIN
+    SELECT ENAME,SAL 
+    INTO  v_name,v_sal
+     FROM EMP 
+    WHERE EMPNO = 7839;
+IF v_sal > 500 AND v_sal<1000
+	THEN
+    v_bonus := 100;
+ELSIF v_sal > 1000 AND v_sal<2500
+    THEN
+    v_bonus := 200;
+ELSIF v_sal >= 2500 AND v_sal<=5000
+    THEN
+    v_bonus := 500;
+ELSE 
+    v_bonus := 0;
+END IF;
+v_totsal := v_bonus+v_sal;
+DBMS_OUTPUT.PUT_LINE('NAME : '||v_name);
+DBMS_OUTPUT.PUT_LINE('SALARY :'||v_sal);
+DBMS_OUTPUT.PUT_LINE('BONUS :'||v_bonus);
+DBMS_OUTPUT.PUT_LINE('SALARY WITH BONUS :'||v_totsal);
+END;
+
+DECLARE
+    year_index NUMBER;
+	calc_sales NUMBER;
+BEGIN
+FOR year_index IN REVERSE 12..1
+LOOP
+    calc_sales(year_index);
+END LOOP;
+END;
+
+-------------------------------------------------------------------------------------------------------------------------------------------
+
+CREATE PROCEDURE name_proc
+IS
+v_stmt  NVARCHAR2(100);
+BEGIN
+    v_stmt := 'Hello world';
+END name_proc;
+
+DELCARE
+BEGIN
+END;
+
+
+create  a pl/sql block to retrive the name of some departents from the departments table and print each dept name on the screen,incorporating an index by table .
+a.Declare an Index by table dept_table_type of 
+departments.department.name.DEclare a variable my_dept_table of typ dept_table_type to temorarily store the name of the departments.
+b. Declare two variables loop_count  and deptno of type number.Assign10 to loop_count and 0 to deptno .
+c.Using a loop,retrive the name of 10 departments and store the names in index by table.Start deptartment_id 10 Increase deptno 10 for every iteration for the loop.you shuld retrive the department name and store Index by table.
+d. Using another loop , retrieve the department names from the index by table and display them.

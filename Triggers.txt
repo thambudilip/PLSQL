@@ -1,0 +1,193 @@
+Triggers in PL/SQL
+--------------------------
+* Trigger is  a database object,saveds in Dataabse.
+* Just Like a procedure
+*Triggers are automatically/Implicitly executed for any DML operations on the table.
+
+Syntax:
+---------
+
+create [or repalce] Trigger Triggername
+[before | after | Instead of ]
+[Insert [or] | update [or] | delete ] on Tablename
+[Referencing old as O new as column]
+[for each row][when(condition)]
+[declare <declare section>]
+begin
+[exeception]
+end;
+
+DROP TABLE EMP;
+
+CREATE TABLE EMP AS SELECT * FROM SCOTT.EMP;
+
+CREATE TABLE DEPT AS SELECT * FROM SCOTT.DEPT;
+
+SELECT * FROM EMP;
+UPDATE EMP SET ENAME = 'DILIPKUMAR' WHERE EMPNO = 7934;
+
+DROP TRIGGER emp_trigger; --drop an emp_trigger trigger
+
+CREATE OR REPLACE TRIGGER emp_trigger -- creating a statement level trigger for emp table before update
+BEFORE UPDATE ON EMP
+BEGIN
+    DBMS_OUTPUT.PUT_LINE('Record updated...');
+END;
+
+
+UPDATE EMP SET ENAME = 'KRISH' WHERE EMPNO = 7934;
+
+DROP TRIGGER emp_trigger1;  --drop an emp_trigger emp_trigger1
+
+CREATE OR REPLACE TRIGGER emp_trigger1   -- creating a statement level trigger for emp table after update
+AFTER UPDATE ON EMP
+BEGIN
+    DBMS_OUTPUT.PUT_LINE('Record updated...');
+END;
+
+UPDATE EMP SET ENAME = 'ASWIN' WHERE EMPNO = 7934;
+
+DROP TRIGGER triggerex1; --drop an emp_trigger triggerex1
+
+CREATE OR REPLACE TRIGGER triggerex1 -- creating a row level trigger for emp table before update
+BEFORE UPDATE ON EMP FOR EACH ROW
+BEGIN
+    DBMS_OUTPUT.PUT_LINE('Record updated...');
+END;
+
+SELECT * FROM USER_TRIGGERS; -- to view all the triggers available in the database
+
+SELECT * FROM EMP;
+
+UPDATE EMP SET SAL = SAL+(SAL*10/100) ; -- update all the columns in emp table.
+
+-----------------------------------------------------------------------------------------
+
+DROP TRIGGER before_insert_example; --drop an emp_trigger before_insert_example
+
+CREATE OR REPLACE TRIGGER before_insert_example --creating a row level trigger for emp table before insert
+BEFORE INSERT ON EMP
+FOR EACH ROW
+BEGIN
+   IF :NEW.SAL < 2000 THEN
+      :NEW.SAL := 2000;
+   END IF;
+END;
+
+/* THIS EXAMPLE WE GIVE SALARY LESS THAN 2000 AS  A INPUT AUTOMATICALLY IT TAKES DEFAULT VALUE AS 2000 */
+SELECT * FROM EMP;
+
+INSERT INTO EMP(EMPNO,ENAME,JOB,MGR,HIREDATE,SAL,COMM,DEPTNO) VALUES (7500,'DILIPKUMAR','ANALYST',7698,'13-JULY-2023',1800,1500,20);
+
+---------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- CREATE A TRIGGER BEFORE I INSERTING EMPLOYEE RECORD HIREDATE NULL MEANS TAKE A SYSDATE
+
+DROP TRIGGER set_default_create_date; --drop an emp_trigger set_default_create_date
+
+
+CREATE OR REPLACE TRIGGER set_default_create_date  --creating a row level trigger for emp table before insert
+BEFORE INSERT ON EMP
+FOR EACH ROW
+BEGIN
+   IF :NEW.HIREDATE IS NULL THEN
+      :NEW.HIREDATE := SYSDATE;
+   END IF;
+END;
+INSERT INTO EMP(EMPNO,ENAME,JOB,MGR,SAL,COMM,DEPTNO) VALUES (7501,'RAMAN','CLERK',7748,1800,1500,20);
+INSERT INTO EMP(EMPNO,ENAME,JOB,MGR,HIREDATE,SAL,COMM,DEPTNO) VALUES (7502,'ANURAM','TECH',7648,NULL,3600,NULL,20);
+SELECT * FROM EMP;
+
+--------------------------------------------------------------------------------------------------------------------
+
+SELECT * FROM USER_TRIGGERS; -- TO VIEW ALL TRIGGERS AVAILABLE ON THE DATABASE
+
+CREATE TABLE EMP1 AS SELECT * FROM SCOTT.EMP;
+
+CREATE OR REPLACE TRIGGER emp1_trigger        ----creating a row level trigger for emp table after update
+AFTER UPDATE ON EMP1 
+FOR EACH ROW
+BEGIN
+    DBMS_OUTPUT.PUT_LINE('Update is successfully completed...');
+END;
+
+UPDATE EMP1 SET SAL = 1000 WHERE DEPTNO = 30;
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+CREATE OR REPLACE TRIGGER emp1_del1 --creating a row level trigger for emp table before delete
+BEFORE DELETE ON EMP1
+FOR EACH ROW
+	BEGIN
+			IF :OLD.EMPNO IS NULL THEN
+				DBMS_OUTPUT.PUT_LINE('DATA IS NOT AVAILABLE, PLEASE CHECK IT...');
+			ELSE
+				DBMS_OUTPUT.PUT_LINE('DELETE OPERATION COMPLETED...');
+			END IF;
+	END;
+
+SELECT * FROM EMP1;
+
+DELETE FROM EMP1 WHERE EMPNO = 7934;
+
+--RESULT
+/*
+1 row(s) deleted.
+DELETE OPERATION COMPLETED...
+*/
+
+-----------------------------------------------------------------------------------------------------
+
+CREATE TABLE EMP1 AS SELECT * FROM SCOTT.EMP;
+
+DROP TRIGGER after_delete_employee1;  --drop an emp_trigger after_delete_employee1
+
+CREATE OR REPLACE TRIGGER after_delete_employee1  ----creating a row level trigger for emp table after delete
+AFTER DELETE ON emp1
+FOR EACH ROW
+BEGIN
+   INSERT INTO emp_audit (empno, ename, deptno, delete_timestamp)   --insert a delete value to emp_audit table
+   VALUES (:OLD.empno, :OLD.ename, :OLD.deptno,  SYSTIMESTAMP);
+	DBMS_OUTPUT.PUT_LINE('Delete operation is successfully completed and sotred in a emp_audit table... ');
+END;
+
+DROP TABLE emp_audit; -- drop an emp_audit table
+
+CREATE TABLE emp_audit (                    --creating a audit table for emp to store the deleted values
+   empno NUMBER,
+   ename VARCHAR2(50),
+   deptno NUMBER,
+   delete_timestamp TIMESTAMP
+);
+
+DELETE FROM EMP1 WHERE EMPNO = 7521;
+DELETE FROM EMP1 WHERE EMPNO = 7900;
+SELECT * FROM EMP1 WHERE EMPNO = 7521; -- no data found
+
+SELECT * FROM emp_audit; -- to view the deleted values in a emp table
+
+---------------------------------------------------------------------------------------------------------------------------------------
+
+CREATE OR REPLACE TRIGGER res_trig
+BEFORE INSERT OR UPDATE OR DELETE ON EMP
+FOR EACH ROW
+BEGIN
+    IF INSERTING THEN
+    	DBMS_OUTPUT.PUT_LINE('Insert completed...');
+	ELSIF UPDATING THEN
+        DBMS_OUTPUT.PUT_LINE('Update completed...');
+	ELSIF DELETING THEN
+        DBMS_OUTPUT.PUT_LINE('Delete completed...');
+	END IF;
+END;
+
+UPDATE EMP SET DEPTNO = 40 WHERE EMPNO = 7934; /* 1 row(s) updated.
+Update completed...*/
+
+INSERT INTO EMP (EMPNO,ENAME,JOB,MGR,HIREDATE,SAL,COMM,DEPTNO) VALUES(7900,'SEENIVASAN','CTS',4587,SYSDATE,9000,1300,40);
+/*1 row(s) inserted.
+Insert completed...*/
+
+DELETE FROM EMP WHERE ENAME = 'KING';
+/*
+1 row(s) deleted.
+Delete completed...*/

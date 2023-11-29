@@ -1,0 +1,64 @@
+-- Display the employees records in deptno 50 , if their annual sal greater than 50000 no change , less than 5000 increase 10% of annual sal.
+
+DECLARE
+v_firstname EMPLOYEES.FIRST_NAME%TYPE;
+v_lastname EMPLOYEES.LAST_NAME%TYPE;
+v_sal EMPLOYEES.SALARY%TYPE;
+v_annsal EMPLOYEES.SALARY%TYPE;
+v_update_annsal EMPLOYEES.SALARY%TYPE;
+CURSOR v_empcur IS SELECT FIRST_NAME,LAST_NAME,SALARY
+FROM EMPLOYEES
+WHERE DEPARTMENT_ID = 50;
+BEGIN<<emp_details>>
+OPEN v_empcur ;
+LOOP
+FETCH  v_empcur INTO v_firstname,v_lastname,v_sal;
+v_annsal := v_sal*12 ;
+IF 	v_annsal >= 50000 THEN
+DBMS_OUTPUT.PUT_LINE('NAME:'||' '||v_firstname||' '||v_lastname);
+DBMS_OUTPUT.PUT_LINE('SALARY:'||' '||v_annsal);
+ELSE 
+    v_update_annsal := v_sal + v_sal * 10 / 100 ;
+	DBMS_OUTPUT.PUT_LINE('FULL_NAME:'||' '||v_firstname||' '||v_lastname);
+    DBMS_OUTPUT.PUT_LINE('SALARY:'||' '||v_update_annsal);
+END IF;
+EXIT WHEN v_empcur%NOTFOUND;
+END LOOP;
+CLOSE v_empcur;
+END emp_details;
+
+-- using record based variable
+DECLARE
+TYPE emp_rectype IS RECORD
+(
+v_firstname EMPLOYEES.FIRST_NAME%TYPE,
+v_lastname EMPLOYEES.LAST_NAME%TYPE,
+v_sal EMPLOYEES.SALARY%TYPE
+);
+v_emprec emp_rectype;
+v_annsal EMPLOYEES.SALARY%TYPE;
+v_update_annsal EMPLOYEES.SALARY%TYPE;
+CURSOR v_empcur IS SELECT FIRST_NAME,LAST_NAME,SALARY
+FROM EMPLOYEES
+WHERE DEPARTMENT_ID = 50;
+BEGIN<<emp_details>>
+OPEN v_empcur ;
+LOOP
+FETCH  v_empcur INTO v_emprec.v_firstname,v_emprec.v_lastname,v_emprec.v_sal;
+v_annsal :=v_emprec.v_sal*12 ;
+IF 	v_annsal >= 50000 THEN
+DBMS_OUTPUT.PUT_LINE('NAME:'||' '||v_emprec.v_firstname||' '||v_emprec.v_lastname);
+DBMS_OUTPUT.PUT_LINE('SALARY:'||' '||v_annsal );
+ELSE 
+    v_update_annsal := v_emprec.v_sal + v_emprec.v_sal * 10 / 100 ;
+	DBMS_OUTPUT.PUT_LINE('FULL_NAME:'||' '||v_emprec.v_firstname||' '||v_emprec.v_lastname);
+    DBMS_OUTPUT.PUT_LINE('SALARY:'||' '||v_update_annsal);
+END IF;
+EXIT WHEN v_empcur%NOTFOUND;
+END LOOP;
+CLOSE v_empcur;
+END emp_details;
+
+
+
+

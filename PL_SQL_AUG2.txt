@@ -1,0 +1,31 @@
+-- WRITING EXECUTABLE STATMENTS
+-----------------------------------------------------------------------------------------
+DROP TABLE EMP;
+CREATE TABLE EMP AS SELECT * FROM  SCOTT.EMP;
+
+-- QUOTED IDENTIFIERS
+-----------------------------
+DECLARE  /* Variable decalration*/
+    "v_name"  VARCHAR2(200) ; /* In this line we used as variable as quoted , Note : it is case sensitive ,we use varname all the places with the quotes*/
+	 "v_loc" NVARCHAR2(50) DEFAULT 'COIMBATORE';
+BEGIN    /* Program starts*/ 
+    SELECT ENAME INTO "v_name"
+    FROM EMP
+    WHERE EMPNO = 7566;
+	DBMS_OUTPUT.PUT_LINE('NAME : ' || "v_name");
+	DBMS_OUTPUT.PUT_LINE('LOCATION : ' || "v_loc");
+END; 	/*Program Ends.*/
+
+--BOOLEAN LITERALS
+-----------------------------
+
+DECLARE
+    v_status BOOLEAN := True;
+	v_is_notadmin BOOLEAN : = NULL;
+BEGIN <<Outer>>
+    v_is_notadmin := FALSE;
+    DBMS_OUTPUT.PUT_LINE('Work status :'||v_status);
+	DBMS_OUTPUT.PUT_LINE('Is not Admin' || v_is_notadmin);
+END Outer; 
+
+

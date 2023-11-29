@@ -1,0 +1,217 @@
+CREATE TABLE EMP AS SELECT * FROM SCOTT.EMP;
+
+CREATE TABLE DEPT AS SELECT * FROM SCOTT.DEPT;
+
+CREATE OR REPLACE PROCEDURE  emp_count_proc(v_deptno EMP.DEPTNO%TYPE)
+IS
+v_count INT;
+BEGIN
+SELECT COUNT(*) INTO v_count
+FROM EMP
+WHERE DEPTNO = v_deptno;
+DBMS_OUTPUT.PUT_LINE('total number of employees'||' '||v_count);
+END;
+
+--create procedure to display empname,sal,job and dname,loc for passing input as empno
+
+CREATE OR REPLACE PROCEDURE emp_proc(v_empno NUMBER)
+IS
+v_name EMP.ENAME%TYPE;
+v_sal EMP.SAL%TYPE;
+v_job EMP.JOB%TYPE;
+v_dname DEPT.DNAME%TYPE;
+v_loc  DEPT.LOC%TYPE;
+CURSOR emp_cur IS 
+    SELECT E.ENAME,E.SAL,E.JOB,D.DNAME,D.LOC
+	FROM EMP E INNER JOIN DEPT D ON E.DEPTNO = D.DEPTNO
+	WHERE E.EMPNO = v_empno;
+BEGIN
+    OPEN emp_cur;
+	LOOP
+    EXIT WHEN emp_cur%NOTFOUND;
+	FETCH emp_cur INTO v_name,v_sal,v_job,v_dname,v_loc;
+	DBMS_OUTPUT.PUT_LINE('NAME :'||' '||v_name);
+	DBMS_OUTPUT.PUT_LINE('SALARY :'||' '||v_sal);
+	DBMS_OUTPUT.PUT_LINE('JOB :'||' '||v_job);
+	DBMS_OUTPUT.PUT_LINE('DEPTNAME : '||' '||v_dname);
+	DBMS_OUTPUT.PUT_LINE('LOC :'||' '||v_loc);
+	END LOOP;
+	CLOSE emp_cur;
+END;
+
+EXECUTE emp_proc(7900);
+
+SELECT * FROM EMP;
+
+BEGIN
+    emp_proc(7566);
+	emp_proc(7788);
+END;
+
+-- same question  for cursor for loop
+
+CREATE OR REPLACE PROCEDURE emp_proc1(v_empno NUMBER)
+IS
+BEGIN
+FOR emp_cur IN(
+    SELECT E.ENAME,E.SAL,E.JOB,D.DNAME,D.LOC
+	FROM EMP E INNER JOIN DEPT D ON E.DEPTNO = D.DEPTNO
+	WHERE E.EMPNO = v_empno)
+    LOOP
+    DBMS_OUTPUT.PUT_LINE('NAME :'||' '||emp_cur.ENAME);
+	DBMS_OUTPUT.PUT_LINE('SALARY :'||' '||emp_cur.SAL);
+	DBMS_OUTPUT.PUT_LINE('JOB :'||' '||emp_cur.JOB);
+	DBMS_OUTPUT.PUT_LINE('DEPTNAME : '||' '||emp_cur.DNAME);
+	DBMS_OUTPUT.PUT_LINE('LOC :'||' '||emp_cur.LOC);
+END LOOP;
+END;
+
+BEGIN
+ emp_proc1(7566);
+END;
+
+-------------------------------------------------------------------------
+
+CREATE OR REPLACE FUNCTION add_func(v_num1 NUMBER,v_num2 NUMBER)
+RETURN NUMBER
+IS 
+v_res NUMBER;
+BEGIN
+    v_res := v_num1 + v_num2;
+	RETURN v_res;
+END;
+
+DECLARE
+    v_result NUMBER;
+BEGIN
+   v_result := add_func(10,20);
+   DBMS_OUTPUT.PUT_LINE('Value of Additon is :'||' '||v_result);
+END;
+
+-----------------------------------------------------------------------------
+
+-- PACKAGE SPECIFICATION 
+
+CREATE OR REPLACE PACKAGE emp_pkg
+AS
+PROCEDURE emp_count_proc(v_deptno EMP.DEPTNO%TYPE);
+PROCEDURE emp_proc(v_empno NUMBER);
+PROCEDURE emp_proc1(v_empno NUMBER);
+--FUNCTION add_func(v_num1 NUMBER,v_num2 NUMBER)
+--RETURN NUMBER;
+END emp_pkg;
+
+-- PACKAGE BODY
+
+CREATE OR REPLACE PACKAGE BODY emp_pkg  
+AS
+PROCEDURE  emp_count_proc(v_deptno EMP.DEPTNO%TYPE)
+IS
+v_count INT;
+BEGIN
+SELECT COUNT(*) INTO v_count
+FROM EMP
+WHERE DEPTNO = v_deptno;
+DBMS_OUTPUT.PUT_LINE('total number of employees'||' '||v_count);
+END emp_count_proc;
+
+PROCEDURE emp_proc(v_empno NUMBER)
+IS
+v_name EMP.ENAME%TYPE;
+v_sal EMP.SAL%TYPE;
+v_job EMP.JOB%TYPE;
+v_dname DEPT.DNAME%TYPE;
+v_loc  DEPT.LOC%TYPE;
+CURSOR emp_cur IS 
+    SELECT E.ENAME,E.SAL,E.JOB,D.DNAME,D.LOC
+	FROM EMP E INNER JOIN DEPT D ON E.DEPTNO = D.DEPTNO
+	WHERE E.EMPNO = v_empno;
+BEGIN
+    OPEN emp_cur;
+	LOOP
+    EXIT WHEN emp_cur%NOTFOUND;
+	FETCH emp_cur INTO v_name,v_sal,v_job,v_dname,v_loc;
+	DBMS_OUTPUT.PUT_LINE('NAME :'||' '||v_name);
+	DBMS_OUTPUT.PUT_LINE('SALARY :'||' '||v_sal);
+	DBMS_OUTPUT.PUT_LINE('JOB :'||' '||v_job);
+	DBMS_OUTPUT.PUT_LINE('DEPTNAME : '||' '||v_dname);
+	DBMS_OUTPUT.PUT_LINE('LOC :'||' '||v_loc);
+	END LOOP;
+	CLOSE emp_cur;
+END emp_proc;
+
+PROCEDURE emp_proc1(v_empno NUMBER)
+IS
+BEGIN
+FOR emp_cur IN(
+    SELECT E.ENAME,E.SAL,E.JOB,D.DNAME,D.LOC
+	FROM EMP E INNER JOIN DEPT D ON E.DEPTNO = D.DEPTNO
+	WHERE E.EMPNO = v_empno)
+    LOOP
+    DBMS_OUTPUT.PUT_LINE('NAME :'||' '||emp_cur.ENAME);
+	DBMS_OUTPUT.PUT_LINE('SALARY :'||' '||emp_cur.SAL);
+	DBMS_OUTPUT.PUT_LINE('JOB :'||' '||emp_cur.JOB);
+	DBMS_OUTPUT.PUT_LINE('DEPTNAME : '||' '||emp_cur.DNAME);
+	DBMS_OUTPUT.PUT_LINE('LOC :'||' '||emp_cur.LOC);
+END LOOP;
+END emp_proc1;
+
+/*add_func(v_num1 NUMBER,v_num2 NUMBER)
+RETURN NUMBER
+IS 
+v_res NUMBER;
+BEGIN
+    v_res := v_num1 + v_num2;
+	RETURN v_res;
+END; */
+
+END emp_pkg;
+
+EXECUTE emp_proc1(7902);
+EXECUTE emp_pkg.emp_proc1(7839);
+
+------------------------------------------------------------------------------------------------------------------
+
+DROP FUNCTION add_func;
+CREATE OR REPLACE FUNCTION add_func(v_num1 NUMBER,v_num2 NUMBER)
+RETURN NUMBER
+IS 
+v_res NUMBER;
+BEGIN
+    v_res := v_num1 + v_num2;
+	DBMS_OUTPUT.PUT_LINE('Addtion of '||v_num1||' '||'and'||' '||v_num2||' '||'= '||v_res);
+	RETURN v_res;
+END;
+
+DECLARE
+    v_result NUMBER;
+BEGIN
+   v_result := add_func(10,20);
+   DBMS_OUTPUT.PUT_LINE('Value of Additon is :'||' '||v_result);
+END;
+
+CREATE OR REPLACE PACKAGE add_pkg
+AS
+FUNCTION add_func(v_num1 NUMBER,v_num2 NUMBER)
+RETURN NUMBER;
+END add_pkg;
+
+CREATE OR REPLACE PACKAGE BODY add_pkg
+AS
+FUNCTION add_func(v_num1 NUMBER,v_num2 NUMBER)
+RETURN NUMBER
+IS 
+v_res NUMBER;
+BEGIN
+    v_res := v_num1 + v_num2;
+	RETURN v_res;
+END;
+END;
+
+DECLARE
+    v_result NUMBER;
+BEGIN
+v_result := add_pkg.add_func(12,13);
+DBMS_OUTPUT.PUT_LINE('Result of addtion is :'||v_result);
+END;
+-------------------------------------------------------------------------------------------------------------------------------------

@@ -1,0 +1,155 @@
+CREATE TABLE EMP AS SELECT * FROM SCOTT.EMP;
+
+CREATE TABLE DEPT AS SELECT * FROM SCOTT.DEPT;
+
+-- Display all the names of employees who are earning more than 3000
+
+--NORMAL SQL QUERY
+/*
+SELECT ENAME
+FROM EMP
+WHERE SAL = ( SELECT SAL FROM EMP WHERE SAL>3000);
+*/    
+DECLARE
+    v_name EMP.ENAME%TYPE;
+BEGIN
+    FOR emp_rec IN (SELECT ENAME
+    					FROM EMP
+  					    WHERE SAL>3000)
+    LOOP
+    v_name := emp_rec.ENAME;
+    DBMS_OUTPUT.PUT_LINE('EMPLOYEE NAME:'||v_name);
+    END LOOP;
+EXCEPTION
+  WHEN NO_DATA_FOUND THEN
+        DBMS_OUTPUT.PUT_LINE('No data found.');
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('An error occurred: ' || SQLERRM);
+END;
+
+
+--Retrieve the names of all employees who work in the 'SALES' department.
+
+DECLARE /*NO ERROR NO O/P */
+   v_name EMP.ENAME%TYPE;
+	v_deptname DEPT.DNAME%TYPE;
+BEGIN
+    SELECT DNAME INTO v_deptname
+    FROM DEPT
+    WHERE DEPTNO = 30;
+	FOR emp_rec  IN (SELECT ENAME
+        			FROM EMP
+        			WHERE ENAME = v_deptname)
+LOOP
+    v_name := emp_rec.ENAME;
+    DBMS_OUTPUT.PUT_LINE('EMPLOYEES NAME:'|| v_name);
+    END LOOP;
+END;
+
+DECLARE /*WORK PROPERLY*/
+    v_employee_name VARCHAR2(100);
+BEGIN
+    FOR emp_rec IN (SELECT ENAME
+                    FROM EMP
+                    WHERE DEPTNO = (SELECT DEPTNO FROM  DEPT WHERE DNAME= 'SALES'))
+    LOOP
+        v_employee_name := emp_rec.ENAME;
+        DBMS_OUTPUT.PUT_LINE(v_employee_name);	
+    END LOOP;
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        DBMS_OUTPUT.PUT_LINE('No data found.');
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('An error occurred: ' || SQLERRM);
+END;
+
+--.Find the employee names and their job titles for employees in the 'RESEARCH' department.
+
+DECLARE
+    v_name EMP.ENAME%TYPE;
+	v_sal EMP.SAL%TYPE;
+BEGIN
+    FOR emp_rec IN (SELECT ENAME,SAL
+    						FROM EMP
+    						WHERE DEPTNO = (SELECT DEPTNO
+    										FROM DEPT
+    										WHERE DNAME = 'RESEARCH'))
+    LOOP
+    v_name := emp_rec.ENAME;
+	v_sal  := emp_rec.SAL;
+    DBMS_OUTPUT.PUT_LINE('EMPLOYEE NAME:'||' '||v_name);
+    DBMS_OUTPUT.PUT_LINE('EMPLOYEE SAL'||' '||v_sal);
+    END LOOP;
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+    DBMS_OUTPUT.PUT_LINE('No data  found...');
+	WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('An Eror Occured...');
+END;
+
+--Show the employees who have the same manager as 'SMITH'.
+
+DECLARE
+	v_name EMP.ENAME%TYPE;
+BEGIN
+    FOR emp_rec IN (SELECT ENAME
+    						FROM EMP
+    						WHERE JOB = (SELECT JOB
+    										FROM EMP
+    											WHERE ENAME = 'SMITH'))
+    LOOP
+    v_name := emp_rec.ENAME;
+	DBMS_OUTPUT.PUT_LINE('EMPLOYEES NAME'||' '||v_name);
+    END LOOP;
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+    DBMS_OUTPUT.PUT_LINE('No data found...');
+	WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('An Error Occured...');
+END;
+
+--.Retrieve the employee names and their hire dates for employees who were hired after '01-JAN-1981'.
+-----------------------------------------------------------------------------------------------------------------------------
+DECLARE
+v_name EMP.ENAME%TYPE;
+v_hiredate EMP.HIREDATE%TYPE;
+BEGIN
+    FOR emp_det IN (SELECT ENAME,HIREDATE
+    						FROM EMP
+    						WHERE HIREDATE IN (SELECT HIREDATE
+    											FROM EMP
+    											WHERE HIREDATE>'01-JAN-1981'))
+    LOOP
+    v_name := emp_det.ENAME;
+	v_hiredate := emp_det.HIREDATE;
+	DBMS_OUTPUT.PUT_LINE('NAME :'||' '||v_name||'   '||'HIRE DATE:'||' '||v_hiredate);
+    END LOOP;
+EXCEPTION 
+    WHEN NO_DATA_FOUND THEN
+    DBMS_OUTPUT.PUT_LINE('No data found....');
+	WHEN OTHERS THEN
+	DBMS_OUTPUT.PUT_LINE('An Error Occured');
+END;
+
+--------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

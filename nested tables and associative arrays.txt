@@ -1,0 +1,42 @@
+Nested Table:
+
+A nested table is an ordered, variable-size collection that is defined as a database table type.
+It can be stored in a database column.
+It supports SQL operations and can be queried using SQL.
+Nested tables can be extended and deleted from, and they support multilevel nesting.
+Syntax for defining a nested table type and using it:
+
+
+-- Define a nested table type
+CREATE OR REPLACE TYPE NameList AS TABLE OF VARCHAR2(50);
+
+-- Declare and use a nested table
+DECLARE
+   names NameList := NameList('Alice', 'Bob', 'Charlie');
+BEGIN
+   names.EXTEND; -- Add an element
+   names(4) := 'David'; -- Assign a value to the new element
+   -- Iterate through the elements
+   FOR i IN 1..names.COUNT LOOP
+      DBMS_OUTPUT.PUT_LINE(names(i));
+   END LOOP;
+END;
+
+
+Associative Array (PL/SQL Table):
+
+An associative array is an unordered collection that uses a unique key to access elements.
+It is defined in PL/SQL, doesn't have a corresponding database table, and is not persisted in the database.
+It is manipulated entirely within a PL/SQL block and does not support multilevel nesting.
+Syntax for defining an associative array type and using it:
+
+DECLARE
+   TYPE NameList IS TABLE OF VARCHAR2(50) INDEX BY PLS_INTEGER;
+   names NameList;
+BEGIN
+   names(1) := 'Alice';
+   names(2) := 'Bob';
+   names(3) := 'Charlie';
+   -- You can access elements using unique keys
+   DBMS_OUTPUT.PUT_LINE(names(2)); -- Output: Bob
+END;

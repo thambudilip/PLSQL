@@ -1,0 +1,32 @@
+
+DECLARE
+    TYPE ph_no_type IS VARRAY(10) OF NUMBER(5);
+	TYPE new_ph_no_type IS VARRAY(10) OF NUMBER(5);
+	ph_1 ph_no_type;
+	ph_2 ph_no_type;
+	ph_3 new_ph_no_type;
+BEGIN
+    ph_1 := ph_no_type(12345,87968,47895);
+	ph_2 := ph_1;
+	FOR i IN 1..ph_1.COUNT
+        LOOP
+        DBMS_OUTPUT.PUT_LINE('PH_1'||' '||ph_1(i));
+        END LOOP;
+END;
+
+DELETE WITH THE VARRY
+------------------------------------
+
+DECLARE
+    TYPE s1_rec IS VARRAY(25) OF VARCHAR2(20);
+	s1 s1_rec ;
+BEGIN
+    	s1  := s1_rec('Dilip','Kesav','Seenivasan','Harikrishnan','Ragavan','kishore');
+       	s1.TRIM();
+	for i in 1..s1.count()
+    LOOP
+    DBMS_OUTPUT.PUT_LINE(s1(i));
+	END LOOP;
+END;
+
+

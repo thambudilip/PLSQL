@@ -1,0 +1,109 @@
+DECLARE
+    TYPE emp_salary_type IS TABLE OF NUMBER INDEX BY VARCHAR2(100);
+    emp_salaries emp_salary_type;
+BEGIN
+    emp_salaries('John') := 50000;
+    emp_salaries('Jane') := 60000;
+    
+    -- Accessing values using indexes
+    DBMS_OUTPUT.PUT_LINE('1st Employee''s Salary: ' || emp_salaries(1)); -- Raises NO_DATA_FOUND error
+    DBMS_OUTPUT.PUT_LINE('John''s Salary: ' || emp_salaries('John'));    -- Prints 50000
+    DBMS_OUTPUT.PUT_LINE('Jane''s Salary: ' || emp_salaries('Jane'));    -- Prints 60000
+END;
+
+Program Explanation:
+-----------------------
+In this example, emp_salary_type is an associative array (index-by table) where employee names (keys) are associated with their salaries (values). The keys are automatically used as indexes to access the values stored in the array.
+
+-- TABLE BY NUMBER INDEX BY VARCHAR2
+DECLARE -- Program starts
+    TYPE emp_sal_type IS TABLE OF NUMBER INDEX BY VARCHAR2(32767); -- Declaring Associative Array 
+v_emprec  emp_sal_type; -- Declaring Associative Array vaiable
+BEGIN
+    v_emprec('Dilipkumar') := 5000;
+	v_emprec('Kesav') := 6000;
+	v_emprec('Harikrishnan') := 10000;
+	v_emprec('Seenivasan') := 12000;
+DBMS_OUTPUT.PUT_LINE( v_emprec('Dilipkumar'));
+DBMS_OUTPUT.PUT_LINE(v_emprec('Kesav'));
+DBMS_OUTPUT.PUT_LINE(v_emprec('Harikrishnan'));
+DBMS_OUTPUT.PUT_LINE(v_emprec('Seenivasan'));
+END;  	-- Program ends
+
+--  Implementation restriction: unsupported table index type 
+
+DECLARE  -- Program starts
+    TYPE emp_sal_type IS TABLE OF NUMBER INDEX BY NUMBER;  -- Declaring Associative Array 
+v_emprec  emp_sal_type;  -- Declaring Associative Array variable
+BEGIN
+    v_emprec(1) := 5000;
+	v_emprec(2) := 6000;
+	v_emprec(3) := 10000;
+	v_emprec(4) := 12000;
+DBMS_OUTPUT.PUT_LINE( v_emprec(1));
+DBMS_OUTPUT.PUT_LINE(v_emprec(2));
+DBMS_OUTPUT.PUT_LINE(v_emprec(3));
+DBMS_OUTPUT.PUT_LINE(v_emprec(4));
+END;   	-- Program ends
+
+-- ASSOCIATIVE ARRAY TABLE OF NUMBER AND INDX BY VARCHAR2 AND APPLYING ASSOCIATIVE ARRAY METHODS
+
+DECLARE  -- Program starts
+TYPE st_marks IS TABLE OF NUMBER INDEX BY VARCHAR2(1000);   -- Declaring Associative Array 
+std_rec st_marks;  -- Declaring Associative Array varible
+BEGIN
+std_rec('Tamil') := 94;
+std_rec('English') := 74;
+std_rec('Mathematics') := 74;
+std_rec('Science') := 99;
+std_rec('Social science') := 92;
+--DBMS_OUTPUT.PUT_LINE(std_rec('Science'));
+DBMS_OUTPUT.PUT_LINE(std_rec.FIRST);
+DBMS_OUTPUT.PUT_LINE(std_rec.LAST);
+DBMS_OUTPUT.PUT_LINE(std_rec.COUNT);
+END;   	-- Program ends
+
+--EXAMPLE FOR VARCHAR WITH PLS  INTEGER
+-------------------------------------------------------------------
+DECLARE
+    TYPE emp_rec_type IS TABLE OF VARCHAR2(50)
+    	INDEX BY PLS_INTEGER;
+	emp_rec  emp_rec_type;
+BEGIN
+    emp_rec(151):= 5000;
+	emp_rec(7889):= 2850;
+    DBMS_OUTPUT.PUT_LINE(emp_rec(151));
+	DBMS_OUTPUT.PUT_LINE(emp_rec(7889));
+END;
+
+-- EXAMPLE FOR EMP TABLE TYPE AS ENAME INDEX AS VARCHAR2
+DECLARE
+    TYPE emp_rec_type IS TABLE OF EMP.ENAME%TYPE 
+    	INDEX BY VARCHAR2(50);
+	emp_rec  emp_rec_type;
+BEGIN
+    emp_rec('KING'):= 500;
+	emp_rec('BLAKE'):= 2850;
+    DBMS_OUTPUT.PUT_LINE(emp_rec('KING'));
+	DBMS_OUTPUT.PUT_LINE(emp_rec('BLAKE'));
+END;
+
+-- INDEX BY TABLE OF RECORDS -- NOT WORKING
+
+DECLARE
+    TYPE emprectype IS TABLE OF EMP%ROWTYPE 
+    	INDEX BY PLS_INTEGER;
+	v_emprec emprectype;
+	v_empno EMP.EMPNO%TYPE := 7900;
+BEGIN
+   SELECT * INTO v_emprec
+    FROM EMP
+    WHERE EMPNO = v_empno;
+DBMS_OUTPUT.PUT.LINNE('NAME:'||v_emprec.ENAME);
+DBMS_OUTPUT.PUT.LINNE('EMPNO:'||v_emprec.v_empno);
+DBMS_OUTPUT.PUT.LINNE('SAL:'||v_emprec.SAL);
+END;
+
+
+
+

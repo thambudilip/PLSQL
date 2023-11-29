@@ -1,0 +1,190 @@
+SELECT * FROM HR.EMPLOYEES;
+
+DECLARE
+    v_firstname VARCHAR2(50) := NULL;
+	v_lastname VARCHAR2(50) := NULL;
+	v_sal NUMBER(10,3) := 0;
+BEGIN
+    SELECT FIRST_NAME,LAST_NAME,SALARY INTO v_firstname,v_lastname,v_sal
+    FROM HR.EMPLOYEES
+    WHERE EMPLOYEE_ID = 110;
+DBMS_OUTPUT.PUT_LINE(' FIRST NAME : ' || v_firstname);
+DBMS_OUTPUT.PUT_LINE('LAST NAME: '|| v_lastname);
+DBMS_OUTPUT.PUT_LINE('FULL NAME : '|| v_firstname || ' ' || v_lastname);
+DBMS_OUTPUT.PUT_LINE('SAL : ' || v_sal);
+END;
+
+
+-- CASE EXPRESSION
+
+SELECT EMPLOYEES.*,
+    CASE
+WHEN FIRST_NAME LIKE 'A%' THEN 'NAME STARTS A'
+WHEN FIRST_NAME LIKE 'B%' THEN 'NAME STARTS B'
+WHEN FIRST_NAME LIKE 'C%' THEN 'NAME STARTS C'
+WHEN FIRST_NAME LIKE 'D%' THEN 'NAME STARTS D'
+WHEN FIRST_NAME LIKE 'E%' THEN 'NAME STARTS E'
+WHEN FIRST_NAME LIKE 'F%' THEN 'NAME STARTS F'
+ELSE 'NAME IS NOT START WITH ABCEDEF'
+END RAISE
+FROM HR.EMPLOYEES;
+
+
+SELECT * FROM HR.EMPLOYEES
+WHERE FIRST_NAME LIKE 'A';
+
+/*
+SELECT ENAME,SAL
+(CASE
+WHEN SAL>100 AND SAL<1000 THEN 'BELOW AVERAGE'
+WHEN SAL>=1000 AND SAL<3000 THEN 'NORMAL SALARY'
+WHEN SAL>=3000 AND SAL<4000 THEN 'MEDIUM SALARY'
+WHEN SAL>=4000 THEN 'HIGH SALARY'
+ELSE 'NO SALARY'
+END AS "SAL GRADE")
+FROM SCOTT.EMP; */ 
+
+
+SELECT EMP.*,
+CASE 
+WHEN SAL>1000 AND SAL<=3000 THEN 'AVERAGE SAL'
+WHEN SAL>=3001 AND SAL<5000 THEN 'MEDIUM SAL'
+WHEN SAL>=5000 THEN 'HIGH SAL'
+ELSE 'LESS THAN AVERAGE SAL'
+END AS "SAL COMPARISION"
+FROM SCOTT.EMP;
+
+
+--DECODE :
+------------------
+SELECT * FROM SCOTT.EMP;
+
+SELECT ENAME,SAL,
+DECODE('JOB',
+    	'MANAGER','MG',
+    	'ANALYST','QE',
+    	'CLERK','CL',
+    	'SALESMAN','SM','OTHERS') AS "NEW_JOB_NAME"
+FROM SCOTT.EMP;
+
+
+Variable Declaration Example in PL/SQL
+---------------------------------------------------
+DECLARE
+   val#  NUMBER(3) :=0;
+   stmt$3 VARCHAR2(200):= NULL ;
+BEGIN
+    stmt$3 := 'Hello world !';
+	val# = 101;
+DBMS_OUTPUT.PUT_LINE('Message : ' || stmt$3);
+DBMS_OUTPUT.PUT_LINE('Value : ' || val#)
+END;
+
+DECLARE
+   val#  NUMBER(3) :=0;
+   stmt$3 VARCHAR2(200):= NULL ;
+BEGIN
+    stmt$3 := 'Hello world !';
+	val# = 101;
+DBMS_OUTPUT.PUT_LINE('Message : ' || stmt$3);
+DBMS_OUTPUT.PUT_LINE('Value : ' || val#)
+END;
+
+-- QUOTED STRING
+-------------------------------
+DECLARE
+v_mothersday NVARCHAR2(200) := NULL;
+BEGIN
+v_mothersday := q'[Mother's day]';
+DBMS_OUTPUT.PUT_LINE(v_mothersday);
+END;
+
+%TYPE
+------------
+In PL/SQL, the %TYPE attribute is used to declare a variable or parameter based on the data type of an existing database column or another PL/SQL variable. It is a powerful feature that allows you to define variables in your code using the same data type as a specific database column or a previously declared variable. This ensures data consistency and makes your code more robust and maintainable, as any changes to the underlying data type are automatically reflected in the declared variables.
+
+SELECT * FROM HR.EMPLOYEES;
+
+SELECT * FROM SCOTT.EMP;
+
+
+DECLARE
+	v_no NUMBER DEFAULT 1 ;
+	v_job NVARCHAR2(20) DEFAULT 'PRIME MINISTER';
+	v_name  SCOTT.EMP.ENAME%TYPE;
+BEGIN
+	SELECT ENAME,EMPNO,JOB INTO v_name,v_no,v_job
+	FROM SCOTT.EMP WHERE EMPNO = 7499;
+	DBMS_OUTPUT.PUT_LINE('NAME :' || v_name);
+	DBMS_OUTPUT.PUT_LINE('Employee No:' || v_no);
+	DBMS_OUTPUT.PUT_LINE('JOB :' || v_job);
+END;
+
+
+DECLARE
+emp_name scott.emp.ename%TYPE;
+
+BEGIN
+    SELECT ENAME INTO emp_name
+    FROM SCOTT.EMP
+    WHERE EMPNO = 7839;
+DBMS_OUTPUT.PUT_LINE('NAME : ' || emp_name);
+END;
+
+DECLARE
+  emp_name hr.employees.last_name%TYPE;
+BEGIN
+  SELECT last_name INTO emp_name FROM hr.employees WHERE employee_id = 102;
+  DBMS_OUTPUT.PUT_LINE('Employee Name: ' || emp_name);
+END;
+
+
+--%ROWTPYPE
+-------------------
+DROP TABLE EMP;
+CREATE TABLE EMP AS SELECT * FROM SCOTT.EMP;
+
+DECLARE
+    v_emprec EMP%ROWTYPE;
+BEGIN
+    SELECT * INTO v_emprec 
+    FROM EMP
+    WHERE EMPNO = 7839;
+DBMS_OUTPUT.PUT_LINE('EMPNO : '||v_emprec.EMPNO);
+DBMS_OUTPUT.PUT_LINE('ENAME : '||v_emprec.ENAME);
+DBMS_OUTPUT.PUT_LINE('JOB : '||v_emprec.JOB);
+DBMS_OUTPUT.PUT_LINE('MGR : '||v_emprec.MGR);
+DBMS_OUTPUT.PUT_LINE('HIREDATE : '|| v_emprec.HIREDATE);
+DBMS_OUTPUT.PUT_LINE('SAL : '||v_emprec.SAL);
+DBMS_OUTPUT.PUT_LINE('COMM : '||v_emprec.COMM);
+DBMS_OUTPUT.PUT_LINE('DEPTNO : '||v_emprec.DEPTNO);
+END;
+
+-- PRACTICE 2
+
+DECLARE
+   V_FIRSTNAME VARCHAR2(20);
+   V_LASTNAME VARCHAR2(15) DEFAULT 'FERNANDEZ';
+BEGIN
+    DBMS_OUTPUT.PUT_LINE(V_FIRSTNAME||' '||V_LASTNAME);
+END;
+
+--4
+
+DECLARE
+v_today DATE := SYSDATE;
+v_tomorrow v_today%TYPE;
+BEGIN
+v_tomorrow := v_today+1;
+DBMS_OUTPUT.PUT_LINE('TODAY IS :' || v_today);
+DBMS_OUTPUT.PUT_LINE('TOMORROW IS :' || v_tomorrow);
+DBMS_OUTPUT.PUT_LINE('Hello world!');
+END;
+
+
+
+
+
+
+
+

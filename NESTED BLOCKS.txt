@@ -1,0 +1,82 @@
+-- NESTED BLOCKS IN PL/SQL;
+---------------------------
+
+DECLARE
+    outer_var  NUMBER(3) :=0;
+	res  NUMBER(3) :=0;
+BEGIN<<Outer_block>>
+outer_var :=25;
+res := outer_var+5;
+DBMS_OUTPUT.PUT_LINE(outer_var);
+DBMS_OUTPUT.PUT_LINE(res);
+DECLARE
+    inner_var  NUMBER(3) :=0;
+	res_1  NUMBER(3) :=0;
+BEGIN<<Inner_block>>
+inner_var := 50;
+res_1 := inner_var+5;
+DBMS_OUTPUT.PUT_LINE(inner_var);
+DBMS_OUTPUT.PUT_LINE(res_1);
+END Inner_block;
+END Outer_block;
+
+------------------------------------------------------------------------------------------------
+
+DECLARE
+BEGIN<<Outer>>
+    DECLARE
+    BEGIN<<Inner>>
+    END Inner;
+END Outer;
+
+-------------------------------------------------------------------------------------------------------
+
+DECLARE
+    a int :=10;
+	b int :=0;
+BEGIN<<Outer>>
+    b := a+10;
+	DBMS_OUTPUT.PUT_LINE('B VALUE:'||b);
+    DECLARE
+     c int :=100;
+	 d int :=0;
+    BEGIN<<Inner>>
+        d := a+c;
+		DBMS_OUTPUT.PUT_LINE('D VALUE'||d);
+    END Inner;
+END Outer;
+
+--------------------------------------------------------------------------------------------------
+DECLARE /* Same var name we used both inner and outer*/
+    a int :=10;
+	b int :=0;
+BEGIN<<Outer>>
+    b := a+10;
+	DBMS_OUTPUT.PUT_LINE('B VALUE OF OUTER:'||b);
+    DECLARE
+    a int :=500;
+	b int :=0;
+    BEGIN<<Inner>>
+        b := a+10;
+		DBMS_OUTPUT.PUT_LINE('B VALUE OF INNER:'||b);
+    END Inner;
+END Outer;
+---------------------------------------------------------------------------------------------------------------------
+
+
+DECLARE /* Same var name we used both inner and outer*/
+    a int :=10;
+	b int :=0;
+BEGIN<<Outer>>
+    b := a+10;
+	DBMS_OUTPUT.PUT_LINE('B VALUE OF OUTER:'||b);
+    DECLARE
+    a int :=50;
+	b int :=0;
+    BEGIN<<Inner>>
+        Outer.b := Outer.a+1000;
+		DBMS_OUTPUT.PUT_LINE('B VALUE OF INNER:'||Outer.b);
+    END Inner;
+END Outer;
+----------------------------------------------------------------------------
+

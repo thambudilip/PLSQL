@@ -1,0 +1,43 @@
+
+-- PROCEDURES TO DISPLAY NUMBER OF EMPLOYEES FROM DEPTNO 30
+
+CREATE OR REPLACE PROCEDURE proc_emps_30
+IS
+emp_count INT;
+BEGIN
+SELECT COUNT(*) INTO emp_count
+FROM EMP
+WHERE DEPTNO = 30;
+DBMS_OUTPUT.PUT_LINE('TOTAL NUMBER OF EMPLOYEES IN DEPT 30: '||' '||emp_count);
+END;
+
+EXECUTE  proc_emps_30;
+
+EXEC proc_emps_30;
+
+-- COUNT OF EMPLOYEES WORKING IN DEPNO 30 AS USER INPUT
+
+CREATE OR REPLACE PROCEDURE  emp_count_proc(v_deptno EMP.DEPTNO%TYPE)
+IS
+v_count INT;
+BEGIN
+SELECT COUNT(*) INTO v_count
+FROM EMP
+WHERE DEPTNO = v_deptno;
+DBMS_OUTPUT.PUT_LINE('total number of employees'||' '||v_count);
+END;
+
+EXECUTE emp_count_proc(10);
+EXECUTE emp_count_proc(20);
+EXECUTE emp_count_proc(30);
+
+---------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+

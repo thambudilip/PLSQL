@@ -1,0 +1,39 @@
+
+DECLARE 
+    v_name EMP.ENAME%TYPE;
+	v_rowid ROWID;
+	v_rownum NUMBER;
+	v_sal EMP.SAL%TYPE;
+BEGIN
+SELECT ROWID,ROWNUM,ENAME,SAL 
+INTO v_rowid,v_rownum,v_name,v_sal
+FROM EMP
+WHERE SAL >500 AND  EMPNO = 7900;
+DBMS_OUTPUT.PUT_LINE('ROWID :'||v_rowid||'  '||'ROWNUM :'||v_rownum||' '||'NAME :'||v_name||'  '||'SALARY:'||v_sal);
+END;
+
+Level pseudo coloum
+--------------------------
+You use LEVEL with the SELECT CONNECT BY statement to organize rows from a database table into a tree structure. LEVEL returns the level number of a node in a tree structure. The root is level 1, children of the root are level 2, grandchildren are level 3, and so on.
+
+In the START WITH clause, you specify a condition that identifies the root of the tree. You specify the direction in which the query walks the tree (down from the root or up from the branches) with the PRIOR operator.
+
+Example:
+-----------
+
+SELECT LEVEL, EMPNO, ENAME
+FROM EMP
+CONNECT BY PRIOR EMPNO = MGR
+START WITH MGR IS NULL;
+
+DECLARE
+    var_num NUMBER:=1;
+BEGIN<<whileex>>
+    WHILE (var_num<=10)
+    LOOP
+    IF var_num!=6 AND var_num!=8 THEN
+    DBMS_OUTPUT.PUT_LINE(var_num);
+	END IF;
+		var_num := var_num+1;
+    END LOOP;
+END whileex;

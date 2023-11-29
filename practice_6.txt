@@ -1,0 +1,55 @@
+CREATE TABLE COUNTRIES AS SELECT  * FROM HR.COUNTRIES;
+
+SELECT * FROM COUNTRIES;
+
+1.
+DECLARE
+    TYPE country_rec_type IS RECORD
+    (
+	v_country_id   COUNTRIES.COUNTRY_ID%TYPE,
+    v_country_name COUNTRIES.COUNTRY_NAME%TYPE,
+    v_region_id    COUNTRIES.REGION_ID%TYPE
+    );
+countryrec  country_rec_type;
+v_country_id COUNTRIES.COUNTRY_ID%TYPE := 'CA';
+BEGIN
+    SELECT * 
+    INTO countryrec
+    FROM COUNTRIES
+    WHERE COUNTRY_ID = v_country_id;
+	DBMS_OUTPUT.PUT_LINE('COUNTRY ID:'||' '||countryrec.v_country_id);
+	DBMS_OUTPUT.PUT_LINE('COUNTRY NAME:'||' '||countryrec.v_country_name);
+	DBMS_OUTPUT.PUT_LINE('REGION ID:'||' '||countryrec.v_region_id);
+EXCEPTION
+WHEN NO_DATA_FOUND THEN
+    DBMS_OUTPUT.PUT_LINE('No data found...');
+WHEN OTHERS THEN
+    DBMS_OUTPUT.PUT_LINE('An error occured...'||SQLERRM);
+END;
+
+
+2.CREATE TABLE DEPARTMENTS AS SELECT * FROM HR.DEPARTMENTS;
+
+SELECT * FROM DEPARTMENTS;
+
+DECLARE
+    TYPE dept_table_type IS TABLE OF  DEPARTMENTS.DEPARTMENT_NAME%TYPE
+     INDEX BY VARCHAR2(50);
+	my_dept_table dept_table_type;
+	loop_count NUMBER := 10;
+    deptno NUMBER := 0;
+BEGIN
+  FOR i IN 1..loop_count LOOP
+        deptno := deptno + 10; 
+        SELECT department_name INTO my_dept_table(deptno)
+        FROM departments
+        WHERE department_id = deptno;
+        DBMS_OUTPUT.PUT_LINE(my_dept_table(deptno));
+    END LOOP; 
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        DBMS_OUTPUT.PUT_LINE('Data not found.');
+	WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('An error occured'||SQLERRM);
+END;
+

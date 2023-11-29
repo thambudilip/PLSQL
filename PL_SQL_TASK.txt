@@ -1,0 +1,91 @@
+-- TASKS- PL/SQL
+-----------------
+--1. BMI CALULATION
+
+DECLARE /*Variable Declaration section*/ 
+    v_name  NVARCHAR2(100):= NULL;
+    v_height NUMBER(5,2) := 0.0;
+	v_weight NUMBER(5,2) := 0.0;
+	v_bmi NUMBER := 0.0;
+BEGIN<<BMI>> /* Program starts here*/
+    v_name   := 'Dilipkumar';
+    v_height := 178.5;
+	v_weight := 76.00;
+	v_bmi := (v_weight/(v_height*v_height))*10000;
+    DBMS_OUTPUT.PUT_LINE('BMI CALULATION');
+    DBMS_OUTPUT.PUT_LINE('HEIGHT :'|| v_height || '    and   ' || 'WEIGHT :' ||v_weight);
+    DBMS_OUTPUT.PUT_LINE('BMI OF '|| v_name || ' is  ' || ROUND(v_bmi));
+END BMI;  /* Program Ends here*/
+
+
+--2. CALULATING COMPOUND INTEREST FOR RS.500 FOR 10 YEARS
+---------------------------------------------------------------
+-- CI = P(1+R/N)NT
+
+/*A = amount
+P = principal
+r = rate of interest
+n = number of times interest is compounded per year
+t = time (in years)
+Alternatively, we can write the formula as given below:
+
+CI = A – P*/
+DECLARE /* Variable declaration for Compound Interest*/
+	v_p NUMBER(10, 2);	
+	v_r NUMBER(10, 2);
+    v_t NUMBER(10, 2);
+	v_ci NUMBER(10, 2);
+BEGIN
+	v_p := 10000;
+	v_r := 0.08;
+	v_t := 10;
+	v_ci := v_p * Power (1 + ( v_r / 100 ),v_t);
+DBMS_OUTPUT.PUT_LINE('COMPOUND INTEREST = '	|| v_ci);
+END ; /* program ends*/
+
+--3.CALCULATE SIMPLE INTREST FOR 1000 RS,8%,20 YRS
+/*A = P(1+RT)
+A	=	final amount
+P	=	initial principal balance
+r	=	annual interest rate
+t	=	time (in years)*/
+
+DECLARE /* Var declaration for simple interest calculation*/
+    v_final_amount  NUMBER(10,2) := 0 ;
+    v_p  NUMBER(10,2) := 0 ;
+    v_r  NUMBER(10,2) := 0 ;
+    v_t  NUMBER(10,2) := 0 ;
+BEGIN<<Si>>
+    v_p := 10000;
+    v_r := 0.08;
+    v_t := 10;
+    v_final_amount := v_p*(1+v_r*v_t);
+    DBMS_OUTPUT.PUT_LINE('AMOUNT : ' || v_p ||' RS' );
+    DBMS_OUTPUT.PUT_LINE('RATE OF RETURN : ' || v_r ||' %' );
+    DBMS_OUTPUT.PUT_LINE('TIME(IN YEARS) : ' || v_t || ' YEARS');
+    DBMS_OUTPUT.PUT_LINE('SMIPLE INTEREST : ' || v_final_amount || ' RS' );
+END Si;/*Program End*/
+
+--4. 5 MARKS AND ITS SUM AND AVG
+
+DECLARE /*Program for calculating student total mark and avg mark*/
+    v_name NVARCHAR2(20):= NULL;
+    v_m1 NUMBER(3) :=93;
+    v_m2 NUMBER(3) :=95;
+    v_m3 NUMBER(3) :=80;
+    v_m4 NUMBER(3) :=85;
+    v_m5 NUMBER(3) :=75;
+	v_tot NUMBER(3) :=0;
+	v_avg NUMBER(5,2) :=0.0;
+BEGIN<<Outer_block>> /* program starts here*/
+    v_name := 'NITISH';
+	v_tot := v_m1+v_m2+v_m3+v_m4+v_m5;
+	v_avg := v_tot/5;
+	DBMS_OUTPUT.PUT_LINE('NAME :'||' ' || v_name);
+ 	DBMS_OUTPUT.PUT_LINE('MARKS :'|| v_m1 || ' ' || v_m2 || ' ' || v_m3 || ' '|| v_m4 || ' ' || v_m5);
+    DBMS_OUTPUT.PUT_LINE('TOTAL MARKS :'||' '||v_tot);
+	DBMS_OUTPUT.PUT_LINE('AVERAGE MARKS :'|| ' ' || v_avg );
+END Outer_block; /*Program Ends Here*/
+
+
+

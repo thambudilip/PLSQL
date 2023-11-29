@@ -1,0 +1,31 @@
+-- EXAMPLE FOR CASE STMT IN PLSQL
+-----------------------------------------------------------
+CREATE TABLE EMP AS SELECT * FROM SCOTT.EMP;
+DECLARE
+    v_name NVARCHAR2(50);
+    v_sal EMP.SAL%TYPE;
+   v_category VARCHAR2(20);
+BEGIN
+    SELECT ENAME,SAL
+    INTO v_name,v_sal
+    FROM EMP
+    WHERE EMPNO = 7839;
+CASE 
+WHEN  v_sal>1000 AND v_sal<3000 THEN 
+   	  v_category :='AVERAGE SALARY'; /*HERE WE CAN STORE VALUE AT VARIABLE ALSO OR WE CAN PRINT dbms_outupt.puline also*/
+WHEN  v_sal>=3000 AND v_sal<5000  THEN
+      v_category := 'MEDIUM SALARY';
+WHEN  v_sal>=5000 THEN
+      v_category := 'HIGH SALARY';
+ELSE
+      v_category := 'BELOW AVEAGE SALARY';
+END CASE;
+    DBMS_OUTPUT.PUT_LINE('NAME :'||v_name);
+    DBMS_OUTPUT.PUT_LINE('SAL :'||v_sal);
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+    DBMS_OUTPUT.PUT_LINE('NO GRADE FOUND');
+	WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('AN ERROR OCCURED'||SQLERRM);
+END;
+

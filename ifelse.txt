@@ -1,0 +1,223 @@
+/*1.Write a PL/SQL block to display the employee details from the EMP table, where the employee's salary is greater than 5000.*/
+CREATE TABLE EMP AS SELECT * FROM HR.EMPLOYEES;
+
+DECLARE
+    v_emprec EMP%ROWTYPE;
+    v_sal EMP.SALARY%TYPE;
+BEGIN
+    SELECT SALARY,FIRST_NAME INTO v_sal,v_emprec.FIRST_NAME
+    FROM EMP 
+    WHERE EMPLOYEE_ID = 100;
+    IF v_sal >5000
+    THEN 
+  	DBMS_OUTPUT.PUT_LINE('SALARY' ||v_sal);
+	DBMS_OUTPUT.PUT_LINE('Name:'||v_emprec.FIRST_NAME);
+ELSE
+    DBMS_OUTPUT.PUT_LINE('NO DETAILS FOUND');
+END IF;
+END;
+
+
+/*3.Write a PL/SQL block to display the employee name and job from the EMP table. 
+If the job is "CLERK", display "Low Level Job",else display "High-Level Job".*/
+
+CREATE TABLE EMP AS SELECT * FROM SCOTT.EMP;
+
+DECLARE
+    v_name SCOTT.EMP.ENAME%TYPE;
+	v_job SCOTT.EMP.JOB%TYPE;
+BEGIN
+    SELECT ENAME,JOB 
+	INTO v_name,v_job
+    FROM SCOTT.EMP
+    WHERE EMPNO = 7698;
+	IF v_job = 'CLERK'
+        THEN
+        DBMS_OUTPUT.PUT_LINE('LOW LEVEL JOB');
+ELSE
+    DBMS_OUTPUT.PUT_LINE('HIGH LEVEL JOB');
+END IF;
+END;
+
+/*4.Write a PL/SQL block to display the employee name, salary, and commission from the EMP table. 
+If commission is NULL, display "No Commission", else display the commission amount. */
+
+CREATE TABLE EMP AS SELECT * FROM SCOTT.EMP;
+
+DECLARE
+v_name EMP.ENAME%TYPE;
+v_sal EMP.SAL%TYPE;
+v_comm EMP.COMM%TYPE;
+BEGIN
+    SELECT ENAME,SAL,COMM 
+    INTO v_name,v_sal,v_comm
+    FROM EMP
+    WHERE EMPNO = 7839;
+IF v_comm IS NULL
+    THEN 
+    DBMS_OUTPUT.PUT_LINE('NAME :'||' '||v_name);
+    DBMS_OUTPUT.PUT_LINE('SALARY :'||' '||v_sal);
+     DBMS_OUTPUT.PUT_LINE('NO COMMISSION');
+ELSE
+     DBMS_OUTPUT.PUT_LINE('NAME :'||' '||v_name);
+    DBMS_OUTPUT.PUT_LINE('SALARY :'||' '||v_sal);
+     DBMS_OUTPUT.PUT_LINE('COMMISSION :'||' '||v_comm);
+END IF;
+END;
+
+
+/* 5.Write a PL/SQL block to display the employee name and hire date from the EMP table.
+If the employee was hired before 01-Jan-1982, display "Old Employee", else display "New Employee".*/
+
+CREATE TABLE EMP AS SELECT * FROM SCOTT.EMP;
+
+DECLARE
+v_name EMP.ENAME%TYPE;
+v_hiredate EMP.HIREDATE%TYPE;
+BEGIN
+    SELECT ENAME,HIREDATE
+    INTO v_name,v_hiredate
+    FROM EMP
+    WHERE EMPNO = 7698;
+IF v_hiredate < '01-jan-1982'
+    THEN
+    DBMS_OUTPUT.PUT_LINE('NAME:'||v_name);
+	DBMS_OUTPUT.PUT_LINE('HIRE DATE :'||v_hiredate);
+	DBMS_OUTPUT.PUT_LINE('OLD EMPLOEE');
+ELSE
+    DBMS_OUTPUT.PUT_LINE('NAME:'||v_name);
+	DBMS_OUTPUT.PUT_LINE('HIRE DATE : '||v_hiredate);
+    DBMS_OUTPUT.PUT_LINE('NEW EMPLOYEE');
+END IF;
+END;
+
+/*6.Write a PL/SQL block to display the employee name and manager name from the EMP table. 
+If the employee's manager ID is NULL, display "No Manager", else display the manager name.*/(ANS NOT GETTING)
+
+CREATE TABLE EMP AS SELECT * FROM SCOTT.EMP;
+
+DECLARE
+    v_name EMP.ENAME%TYPE;
+	v_mgrname EMP.ENAME%TYPE;
+	/*v_mgrid EMP.MGR%TYPE;*/
+BEGIN
+    SELECT E1.ENAME,E2.ENAME 
+    INTO v_name,v_mgrname
+    FROM EMP E1,EMP E2
+    WHERE E1.EMPNO = E2.MGR AND E1.MGR IS NULL AND EMPNO = 7839;
+	IF v_mgrname IS NULL
+        THEN
+        DBMS_OUTPUT.PUT_LINE('NO MANAGER');
+ELSE
+     DBMS_OUTPUT.PUT_LINE('MANAGER NAME : '||v_mgrname);
+END IF;    
+END;
+
+
+/* 7.Write a PL/SQL block to display the employee name, salary, and job from the EMP table. If salary is between 2000 and 3000, 
+display "Low Salary", if salary is between 3001 and 5000, display "Medium Salary", else display "High Salary".*/
+
+CREATE TABLE EMP AS SELECT * FROM SCOTT.EMP;
+
+DECLARE
+    v_name EMP.ENAME%TYPE;
+    v_sal EMP.SAL%TYPE;
+    v_job   EMP.JOB%TYPE;
+BEGIN
+    SELECT ENAME,SAL,JOB 
+    INTO v_name,v_sal,v_job
+    FROM EMP 
+    WHERE EMPNO = 7521;
+IF  v_sal BETWEEN 2000 AND 3000
+    THEN
+    DBMS_OUTPUT.PUT_LINE('LOW SALARY');
+ELSIF  v_sal BETWEEN 3001 AND 5000
+    THEN
+    DBMS_OUTPUT.PUT_LINE('MEDIUM SALARY');
+ELSE
+     DBMS_OUTPUT.PUT_LINE('HIGH SALARY');
+END IF;
+END;
+
+/*8.Write a PL/SQL block to display the employee name and salary from the EMP table.If salary is greater 
+than the average salary of all employees, display "Above Average", else display "Below Average".*/
+
+CREATE TABLE EMP AS SELECT * FROM SCOTT.EMP;
+
+DECLARE
+    v_name EMP.ENAME%TYPE;
+    v_sal EMP.SAL%TYPE;
+	v_avgsal NUMBER(8,3);
+BEGIN
+    SELECT ENAME,SAL,(SELECT AVG(SAL) FROM EMP)
+    INTO v_name,v_sal,v_avgsal
+    FROM EMP
+    WHERE EMPNO = 7521;
+IF v_sal > v_avgsal
+    THEN
+    DBMS_OUTPUT.PUT_LINE('ABOVE AVERAGE');
+ELSE 
+     DBMS_OUTPUT.PUT_LINE('BELOW AVERAGE');
+END IF;
+END ;
+
+/*9.Write a PL/SQL block to display the employee name, salary, and department name from the EMP and DEPT tables. If the employee's 
+department number is not present in the DEPT table, display "Unknown Department".*/ ( ANS NOT GETTING)
+
+CREATE TABLE EMP AS SELECT * FROM SCOTT.EMP;
+CREATE TABLE DEPT AS SELECT * FROM SCOTT.DEPT;
+
+SELECT * FROM DEPT;
+
+DECLARE
+    v_name EMP.ENAME%TYPE;
+    v_sal EMP.SAL%TYPE;
+	v_deptno EMP.DEPTNO%TYPE;
+	v_deptname DEPT.DNAME%TYPE;
+BEGIN
+SELECT E1.ENAME,E1.SAL,D1.DEPTNAME
+FROM EMP E1 INNER JOIN DEPT D1
+ON E1.DEPTNO = D1.DEPTNO
+WHERE E1.EMPNO = 7934;
+IF E1.DEPTNO IS NOT NULL FROM DEPT
+THEN 
+DBMS_OUTPUT.PUT_LINE('UNKONOWN DEPARTMENT');
+ELSE
+DBMS_OUTPUT.PUT_LINE('NAME :'||v_name);
+DBMS_OUTPUT.PUT_LINE('UNKONOWN DEPARTMENT'||v_sal);
+DBMS_OUTPUT.PUT_LINE('UNKONOWN DEPARTMENT'||v_dept);
+END IF;
+END;
+
+
+/*10. Write a PL/SQL block to display the employee name and hire date from the EMP table. If the hire date is not
+a Monday, display "Non-Monday Hire date", else display "Monday Hire date".*/
+CREATE TABLE EMP AS SELECT * FROM SCOTT.EMP;
+
+DECLARE
+v_name EMP.ENAME%TYPE;
+v_hiredate EMP.HIREDATE%TYPE;
+v_day_of_week NVARCHAR2(200);
+BEGIN
+SELECT ENAME,HIREDATE 
+INTO v_name,v_hiredate
+FROM EMP
+WHERE EMPNO = 7521;
+v_day_of_week := TO_CHAR(v_hiredate, 'Day');
+IF v_day_of_week NOT LIKE '%MON%'
+THEN
+ DBMS_OUTPUT.PUT_LINE('NOT MONDAY');
+ELSE
+ DBMS_OUTPUT.PUT_LINE('MONDAY IS HIREDATE');
+END IF;
+END;
+
+
+
+
+
+
+
+
+
+

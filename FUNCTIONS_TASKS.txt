@@ -1,0 +1,356 @@
+CREATE TABLE EMPLOYEES AS SELECT * FROM HR.EMPLOYEES ;
+CREATE TABLE LOCATIONS AS  SELECT * FROM HR.LOCATIONS ;
+CREATE TABLE COUNTRIES AS SELECT * FROM HR.COUNTRIES ;
+CREATE TABLE REGIONS AS SELECT * FROM HR.REGIONS  ;
+CREATE TABLE JOB_HISTORY AS SELECT * FROM HR.JOB_HISTORY;
+CREATE TABLE DEPARTMENTS AS SELECT * FROM HR.DEPARTMENTS;
+
+-- Write  a PL/SQL program for Annual salary of the employee
+
+CREATE OR REPLACE FUNCTION annualsal_func(v_empid EMPLOYEES.EMPLOYEE_ID%TYPE)
+    RETURN NUMBER
+IS
+    v_annualsal NUMBER;
+BEGIN
+    SELECT SALARY*12 INTO v_annualsal 
+    FROM EMPLOYEES
+    WHERE EMPLOYEE_ID = v_empid;
+	RETURN v_annualsal;
+END;
+
+SELECT  annualsal_func(100) AS "ANNUAL_SAL" FROM DUAL;
+
+
+--  Write  a PL/SQL program for sum of salary in each deptartment
+
+CREATE OR REPLACE FUNCTION sumsal_func(v_deptno EMPLOYEES.DEPARTMENT_ID%TYPE)
+RETURN NUMBER
+AS
+v_sal NUMBER;
+BEGIN
+    SELECT SUM(SALARY) INTO v_sal
+    FROM EMPLOYEES
+    WHERE DEPARTMENT_ID = v_deptno;
+    RETURN v_sal;
+END;
+
+SELECT sumsal_func(100) from dual;
+
+
+--Write  a PL/SQL program for count of country in a partciular region
+
+CREATE OR REPLACE FUNCTION county_count_func(v_regionid COUNTRIES.REGION_ID%TYPE)
+RETURN NUMBER
+AS
+v_count NUMBER;
+BEGIN
+    SELECT COUNT(*) INTO v_count
+	FROM COUNTRIES C INNER JOIN
+    REGIONS R ON 
+    C.REGION_ID = R.REGION_ID
+    WHERE R.REGION_ID = v_regionid;
+	RETURN v_count;
+END;
+
+SELECT county_count_func(1) FROM DUAL; 
+/* 
+SELECT COUNTRY_NAME   -- normal sql query 
+FROM COUNTRIES
+INNER JOIN REGIONS
+ON COUNTRIES.REGION_ID = REGIONS.REGION_ID
+WHERE REGIONS.REGION_ID = 1;
+*/
+
+
+
+
+-- Write  a PL/SQL program for count of location in  a particular country
+
+CREATE OR REPLACE FUNCTION loc_count_func(v_countryid COUNTRIES.COUNTRY_ID%TYPE)
+RETURN NUMBER
+IS
+    v_count NUMBER;
+BEGIN
+    SELECT COUNT(*) INTO v_count
+    FROM LOCATIONS L
+    INNER JOIN COUNTRIES C
+    ON L.COUNTRY_ID = C.COUNTRY_ID
+    WHERE L.COUNTRY_ID = v_countryid;
+	RETURN v_count;
+END;
+
+SELECT loc_count_func('US') FROM DUAL;
+
+/* NORMAL SQL QUERIES 
+    SELECT COUNT(*)
+    FROM LOCATIONS L
+    INNER JOIN COUNTRIES C
+    ON L.COUNTRY_ID = C.COUNTRY_ID
+    WHERE C.COUNTRY_ID = 'US';
+
+    SELECT STATE_PROVINCE,COUNTRY_ID
+    FROM LOCATIONS
+    WHERE COUNTRY_ID = 'US'; */
+
+-----------------------------------------------------------------------------------------------------------
+-- Write  a PL/SQL program for count of jobs in each deptname which is really costly
+
+/* NORMAL SQL QUERY*/
+
+SELECT COUNT(*),D1.DEPARTMENT_NAME
+FROM EMPLOYEES E1 JOIN DEPARTMENTS D1
+ON E1.DEPARTMENT_ID = D1.DEPARTMENT_ID
+WHERE E1.SALARY = (SELECT MAX(SALARY)
+    				FROM EMPLOYEES E2
+    				WHERE E2.DEPARTMENT_ID = D1.DEPARTMENT_ID)
+GROUP BY DEPARTMENT_NAME
+ORDER BY DEPARTMENT_NAME;
+
+/* PLSQL QUERY*/ 
+
+CREATE OR REPLACE FUNCTION GetCostlyJobCounts RETURN SYS_REFCURSOR IS
+    v_cursor SYS_REFCURSOR;
+BEGIN
+    OPEN v_cursor FOR
+        SELECT COUNT(*) AS costly_job_count, D.DEPARTMENT_NAME
+        FROM EMPLOYEES E1
+        JOIN DEPARTMENTS D ON E1.DEPARTMENT_ID = D.DEPARTMENT_ID
+        WHERE E1.SALARY = (
+            SELECT MAX(SALARY)
+            FROM EMPLOYEES E2
+            WHERE E2.DEPARTMENT_ID = D.DEPARTMENT_ID
+        )
+        GROUP BY D.DEPARTMENT_NAME
+        ORDER BY D.DEPARTMENT_NAME;
+
+    RETURN v_cursor;
+END;
+
+
+DECLARE
+    v_result_cursor SYS_REFCURSOR;
+    v_costly_job_count NUMBER;
+    v_department_name VARCHAR2(100);
+BEGIN
+    -- Call the GetCostlyJobCounts function
+    v_result_cursor := GetCostlyJobCounts;
+
+    -- Fetch and display the results
+    LOOP
+        FETCH v_result_cursor INTO v_costly_job_count, v_department_name;
+        EXIT WHEN v_result_cursor%NOTFOUND;
+
+        -- Print the department name and the count of costly jobs
+        DBMS_OUTPUT.PUT_LINE('Department: ' || v_department_name || ', Costly Jobs Count: ' || v_costly_job_count);
+    END LOOP;
+
+    -- Close the cursor
+    CLOSE v_result_cursor;
+END;
+
+----------------------------------------------------------------------------------------------------------------
+
+-- WRITE A PL/SQL PROGRAM FOR TOP 10 EMPLOYEES WHO EARN GREAT SALARY IN THE EMPLOYEE TABLE
+
+CREATE OR REPLACE FUNCTION emp_func
+RETURN SYS_REFCURSOR
+AS 
+v_cur SYS_REFCURSOR;
+BEGIN
+    OPEN  v_cur FOR SELECT  E.FIRST_NAME,E.SALARY
+			FROM EMPLOYEES E
+            WHERE E.SALARY = (SELECT MAX(SALARY)
+    		FROM EMPLOYEES 
+    		WHERE FIRST_NAME = E.FIRST_NAME) AND ROWNUM<= 10;
+    RETURN v_cur;
+END;
+
+DECLARE
+v_emp_cur SYS_REFCURSOR;
+v_name EMPLOYEES.FIRST_NAME%TYPE;
+v_sal EMPLOYEES.SALARY%TYPE;
+BEGIN
+    v_emp_cur := emp_func;
+LOOP
+    FETCH v_emp_cur INTO v_name,v_sal;
+	EXIT WHEN v_emp_cur%NOTFOUND;
+	DBMS_OUTPUT.PUT_LINE('ENAME :'||v_name||'  '||'SALARY:'||'  '||v_sal);
+END LOOP;
+CLOSE v_emp_cur;
+END;
+----------------------------------------------------------------------------------------------------------------------------------
+
+-- Write  a PL/SQL program for count of jobs in each dept which is really costly
+
+CREATE OR REPLACE FUNCTION costly_dept
+RETURN SYS_REFCURSOR
+AS 
+v_cur SYS_REFCURSOR;
+BEGIN
+    OPEN  v_cur FOR SELECT COUNT(*),D1.DEPARTMENT_NAME
+                    FROM EMPLOYEES E1 INNER JOIN DEPARTMENTS D1
+                    ON E1.DEPARTMENT_ID = D1.DEPARTMENT_ID
+                    WHERE E1.SALARY = (SELECT MAX(SALARY)
+    				FROM EMPLOYEES E2
+    				WHERE E2.DEPARTMENT_ID = D1.DEPARTMENT_ID)
+GROUP BY DEPARTMENT_NAME
+ORDER BY DEPARTMENT_NAME;
+RETURN v_cur;
+END;
+
+DECLARE
+v_emp_cur SYS_REFCURSOR;
+v_count NUMBER;
+v_dname DEPARTMENTS.DEPARTMENT_NAME%TYPE;
+BEGIN
+    v_emp_cur := costly_dept ;
+LOOP
+    FETCH v_emp_cur INTO v_count,v_dname;
+	EXIT WHEN v_emp_cur%NOTFOUND;
+	DBMS_OUTPUT.PUT_LINE('COUNT :'||v_count||'  '||'DEPT NAME:'||'  '||v_dname);
+END LOOP;
+CLOSE v_emp_cur;
+END;
+
+---------------------------------------------------------------------------------------------------
+
+-- Write a PL/SQL Program for Displaying job history of  an employee using Ref cursor (used to %type attributes)
+
+CREATE OR REPLACE FUNCTION job_hist(v_empno EMPLOYEES.EMPLOYEE_ID%TYPE)
+RETURN SYS_REFCURSOR
+AS 
+v_cur SYS_REFCURSOR;
+BEGIN
+    OPEN  v_cur FOR SELECT E1.FIRST_NAME,J1.JOB_ID,J1.START_DATE,J1.END_DATE FROM
+    EMPLOYEES E1 INNER JOIN JOB_HISTORY J1
+    ON E1.JOB_ID = J1.JOB_ID
+	WHERE E1.EMPLOYEE_ID = v_empno;
+RETURN v_cur;
+END;
+
+
+DECLARE
+v_emp_cur SYS_REFCURSOR;
+v_name EMPLOYEES.FIRST_NAME%TYPE;
+v_jobid JOB_HISTORY.JOB_ID%TYPE;
+v_starrdate JOB_HISTORY.START_DATE%TYPE;
+v_enddate JOB_HISTORY.END_DATE%TYPE;
+BEGIN
+    v_emp_cur := job_hist(120);
+LOOP
+    FETCH v_emp_cur INTO v_name,v_jobid,v_starrdate,v_enddate;
+	EXIT WHEN v_emp_cur%NOTFOUND;
+DBMS_OUTPUT.PUT_LINE('-----------------------JOB HISTORY------------------');
+	DBMS_OUTPUT.PUT_LINE('FIRST_NAME'||'  '||v_name);
+	DBMS_OUTPUT.PUT_LINE('JOB ID'||'  '|| v_jobid);
+	DBMS_OUTPUT.PUT_LINE('START DATE'||'  '||v_starrdate );
+	DBMS_OUTPUT.PUT_LINE('END DATE'||'  '||v_enddate );
+END LOOP;
+END;
+-----------------------------------------------------------------------------------------------------------------
+-- Write a PL/SQL Program for Displaying job history of  an employee using Ref cursor (used to object type variables)
+
+CREATE OR REPLACE TYPE EmployeeJobHistory AS OBJECT (
+    FIRST_NAME VARCHAR2(50),
+    JOB_ID VARCHAR2(10),
+    START_DATE DATE,
+    END_DATE DATE
+);
+
+CREATE OR REPLACE FUNCTION job_hist(v_empno EMPLOYEES.EMPLOYEE_ID%TYPE)
+RETURN SYS_REFCURSOR
+AS 
+    v_cur SYS_REFCURSOR;
+BEGIN
+    OPEN v_cur FOR
+        SELECT EmployeeJobHistory(E1.FIRST_NAME, J1.JOB_ID, J1.START_DATE, J1.END_DATE)
+        FROM EMPLOYEES E1
+        INNER JOIN JOB_HISTORY J1 ON E1.JOB_ID = J1.JOB_ID
+        WHERE E1.EMPLOYEE_ID = v_empno;
+
+    RETURN v_cur;
+END;
+
+DECLARE
+    v_emp_cur SYS_REFCURSOR;
+    v_job_history EmployeeJobHistory; -- Declare a variable of the custom record type
+BEGIN
+    v_emp_cur := job_hist(120);    
+    LOOP
+        FETCH v_emp_cur INTO v_job_history;
+        EXIT WHEN v_emp_cur%NOTFOUND;        
+        DBMS_OUTPUT.PUT_LINE('-----------------------JOB HISTORY------------------');
+        DBMS_OUTPUT.PUT_LINE('FIRST_NAME'||'  '||v_job_history.FIRST_NAME);
+        DBMS_OUTPUT.PUT_LINE('JOB ID'||'  '||v_job_history.JOB_ID);
+        DBMS_OUTPUT.PUT_LINE('START DATE'||'  '||TO_CHAR(v_job_history.START_DATE, 'YYYY-MM-DD'));
+        DBMS_OUTPUT.PUT_LINE('END DATE'||'  '||TO_CHAR(v_job_history.END_DATE, 'YYYY-MM-DD'));
+    END LOOP;
+END;
+----------------------------------------------------------------------------------------------------------------------------------------------------------
+
+-- Write  a PL/SQL program for count of location in  a each country
+
+CREATE OR REPLACE FUNCTION loc_count
+RETURN SYS_REFCURSOR
+AS 
+v_cur SYS_REFCURSOR;
+BEGIN
+    OPEN  v_cur FOR SELECT COUNT(LOCATION_ID),COUNTRY_NAME
+    FROM COUNTRIES INNER JOIN LOCATIONS 
+    ON COUNTRIES.COUNTRY_ID = LOCATIONS.COUNTRY_ID
+    GROUP BY COUNTRY_NAME
+    ORDER BY COUNTRY_NAME;
+RETURN v_cur;
+END;
+
+DECLARE
+v_country_cur SYS_REFCURSOR;
+v_count NUMBER;
+v_countryname COUNTRIES.COUNTRY_NAME%TYPE;
+BEGIN
+    v_country_cur := loc_count ;
+LOOP
+    FETCH v_country_cur INTO v_count,v_countryname;
+	EXIT WHEN v_country_cur%NOTFOUND;
+	DBMS_OUTPUT.PUT_LINE('LOC_COUNT :'||v_count||'  '||'LOCATION_NAME:'||'  '||v_countryname);
+END LOOP;
+CLOSE v_country_cur;
+END;
+
+--------------------------------------------------------------------------------------------------------------------------
+	
+
+-- Write  a PL/SQL program for sum of salary in each departments
+
+CREATE OR REPLACE FUNCTION loc_count
+RETURN SYS_REFCURSOR
+AS 
+v_cur SYS_REFCURSOR;
+BEGIN
+    OPEN  v_cur FOR SELECT SUM(SALARY),DEPARTMENT_NAME
+    FROM EMPLOYEES INNER JOIN DEPARTMENTS 
+    ON EMPLOYEES.DEPARTMENT_ID = DEPARTMENTS.DEPARTMENT_ID
+    GROUP BY DEPARTMENT_NAME
+    ORDER BY DEPARTMENT_NAME;
+RETURN v_cur;
+END;
+
+DECLARE
+v_dept_cur SYS_REFCURSOR;
+v_sumsal NUMBER;
+v_deptname DEPARTMENTS.DEPARTMENT_NAME%TYPE;
+BEGIN
+    v_dept_cur := loc_count ;
+LOOP
+    FETCH v_dept_cur INTO v_sumsal,v_deptname;
+	EXIT WHEN v_dept_cur%NOTFOUND;
+	DBMS_OUTPUT.PUT_LINE('DEPARTMENT_NAME:'||v_deptname);
+	DBMS_OUTPUT.PUT_LINE('SUM_SAL :'||v_sumsal);
+	DBMS_OUTPUT.PUT_LINE('');
+END LOOP;
+CLOSE v_dept_cur;
+END;
+
+
+
+---------------------------------------------------------------------------------------------------------------------------
